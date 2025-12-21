@@ -7,6 +7,7 @@ export type InstallmentStatus = 'active' | 'paid_off'
 export type AssetType = 'cash' | 'savings' | 'investment' | 'gold' | 'property' | 'other'
 export type LiabilityType = 'debt' | 'loan' | 'other'
 export type CategoryType = 'income' | 'expense' | 'asset' | 'liability'
+export type RecurrencePeriod = 'monthly' | 'yearly' | 'forever'
 
 // Transaction
 export interface Transaction {
@@ -73,6 +74,9 @@ export interface WishlistItem {
   priority: Priority
   targetDate?: string
   currentSaved: number
+  linkedSavingsId?: string // Link to savings goal
+  category?: string // Category/tag for filtering
+  imageUrl?: string // Optional image
   status: WishlistStatus
   note?: string
   createdAt: string
@@ -85,6 +89,26 @@ export interface WishlistInput {
   priority: Priority
   targetDate?: string
   currentSaved?: number
+  linkedSavingsId?: string
+  category?: string
+  imageUrl?: string
+  note?: string
+}
+
+// Installment Payment Record
+export interface InstallmentPayment {
+  id: string
+  installmentId: string
+  amount: number
+  date: string // ISO date
+  note?: string
+  transactionId?: string // Link to expense transaction
+  createdAt: string
+}
+
+export interface InstallmentPaymentInput {
+  amount: number
+  date?: string
   note?: string
 }
 
@@ -95,7 +119,7 @@ export interface Installment {
   totalAmount?: number
   totalTenor: number // Total months
   currentTenor?: number
-  currentMonth: number // Current month position
+  currentMonth: number // Current month position (calculated from payments)
   monthlyAmount: number
   startDate: string
   categoryId?: string
@@ -104,6 +128,7 @@ export interface Installment {
   status: InstallmentStatus
   autoGenerateTransaction: boolean
   autoCreateTransaction?: boolean
+  payments: InstallmentPayment[] // Payment records for partial payments
   lastGeneratedMonth?: string // YYYY-MM format
   note?: string
   createdAt: string
@@ -128,6 +153,9 @@ export interface MonthlyNeed {
   categoryId?: string
   subcategoryId?: string
   subcategory?: string
+  recurrencePeriod: RecurrencePeriod // NEW: monthly, yearly, forever
+  startMonth?: string // YYYY-MM format
+  autoGenerateTransaction: boolean // NEW: auto-create expense transaction
   note?: string
   createdAt: string
   updatedAt?: string
@@ -147,6 +175,9 @@ export interface MonthlyNeedInput {
   budgetAmount: number
   dueDay?: number
   subcategory?: string
+  recurrencePeriod?: RecurrencePeriod
+  startMonth?: string
+  autoGenerateTransaction?: boolean
   note?: string
 }
 
@@ -175,6 +206,42 @@ export interface AssetInput {
   isLiability: boolean
   initialValue: number
   currentValue: number
+}
+
+// Savings Goal
+export interface SavingsDeposit {
+  id: string
+  savingsId: string
+  amount: number
+  date: string // ISO date
+  note?: string
+  createdAt: string
+}
+
+export interface SavingsGoal {
+  id: string
+  name: string
+  targetAmount: number
+  targetDate?: string
+  linkedWishlistId?: string // Optional link to wishlist item
+  deposits: SavingsDeposit[]
+  note?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface SavingsGoalInput {
+  name: string
+  targetAmount: number
+  targetDate?: string
+  linkedWishlistId?: string
+  note?: string
+}
+
+export interface SavingsDepositInput {
+  amount: number
+  date?: string
+  note?: string
 }
 
 // Dashboard Types

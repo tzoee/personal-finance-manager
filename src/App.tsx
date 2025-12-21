@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
 import Categories from './pages/Categories'
 import Wishlist from './pages/Wishlist'
+import Savings from './pages/Savings'
 import Installments from './pages/Installments'
 import MonthlyNeeds from './pages/MonthlyNeeds'
 import Assets from './pages/Assets'
@@ -16,6 +17,7 @@ import { useWishlistStore } from './store/wishlistStore'
 import { useInstallmentStore } from './store/installmentStore'
 import { useMonthlyNeedStore } from './store/monthlyNeedStore'
 import { useAssetStore } from './store/assetStore'
+import { useSavingsStore } from './store/savingsStore'
 import { applySeedData } from './services/seed'
 
 function SeedDataDialog({ onAccept, onDecline }: { onAccept: () => void; onDecline: () => void }) {
@@ -56,6 +58,7 @@ function App() {
   const { initialized: installmentsInit, initialize: initInstallments } = useInstallmentStore()
   const { initialized: monthlyNeedsInit, initialize: initMonthlyNeeds } = useMonthlyNeedStore()
   const { initialized: assetsInit, initialize: initAssets } = useAssetStore()
+  const { initialized: savingsInit, initialize: initSavings } = useSavingsStore()
   const [loading, setLoading] = useState(true)
   const [showSeedDialog, setShowSeedDialog] = useState(false)
 
@@ -69,6 +72,7 @@ function App() {
         !installmentsInit && initInstallments(),
         !monthlyNeedsInit && initMonthlyNeeds(),
         !assetsInit && initAssets(),
+        !savingsInit && initSavings(),
       ])
       setLoading(false)
     }
@@ -124,6 +128,7 @@ function App() {
           <Route path="/transactions" element={<Transactions />} />
           <Route path="/categories" element={<Categories />} />
           <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/savings" element={<Savings />} />
           <Route path="/installments" element={<Installments />} />
           <Route path="/monthly-needs" element={<MonthlyNeeds />} />
           <Route path="/assets" element={<Assets />} />

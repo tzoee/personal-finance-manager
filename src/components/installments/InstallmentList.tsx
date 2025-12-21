@@ -1,11 +1,12 @@
 /**
  * InstallmentList Component
- * Displays installments with progress
+ * Displays installments with progress and payment options
  */
 
-import { Calendar, Edit2, Trash2, CheckCircle, Clock } from 'lucide-react'
+import { Calendar, Edit2, Trash2, CheckCircle, Clock, Wallet } from 'lucide-react'
 import type { Installment } from '../../types'
 import { formatCurrency } from '../../utils/formatters'
+import PaymentHistory from './PaymentHistory'
 
 interface InstallmentWithDetails extends Installment {
   remainingMonths: number
@@ -13,18 +14,22 @@ interface InstallmentWithDetails extends Installment {
   totalAmount: number
   paidAmount: number
   progressPercentage: number
+  periodPaid: number
+  remainingThisPeriod: number
 }
 
 interface InstallmentListProps {
   installments: InstallmentWithDetails[]
   onEdit: (installment: Installment) => void
   onDelete: (installment: Installment) => void
+  onPay?: (installment: InstallmentWithDetails) => void
 }
 
 export default function InstallmentList({
   installments,
   onEdit,
   onDelete,
+  onPay,
 }: InstallmentListProps) {
   if (installments.length === 0) {
     return (
@@ -81,6 +86,17 @@ export default function InstallmentList({
 
             {/* Actions */}
             <div className="flex items-center gap-1 ml-2">
+              {installment.status === 'active' && onPay && (
+                <button
+                  onClick={() => onPay(installment)}
+                  className="px-2 py-1 text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 
+                           rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors flex items-center gap-1"
+                  title="Bayar"
+                >
+                  <Wallet className="w-3 h-3" />
+                  Bayar
+                </button>
+              )}
               <button
                 onClick={() => onEdit(installment)}
                 className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
@@ -117,6 +133,26 @@ export default function InstallmentList({
                 style={{ width: `${installment.progressPercentage}%` }}
               />
             </div>
+
+            {/* Period Progress - show partial payment progress */}
+            {installment.status === 'active' && installment.periodPaid > 0 && (
+              <div className="mt-2">
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-gray-500 dark:text-gray-400">
+                    Progress periode ini
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    {formatCurrency(installment.periodPaid)} / {formatCurrency(installment.monthlyAmount)}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-amber-500 rounded-full transition-all"
+                    style={{ width: `${(installment.periodPaid / installment.monthlyAmount) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Details */}
@@ -142,6 +178,13 @@ export default function InstallmentList({
                 {installment.remainingMonths} bulan lagi • Total: {formatCurrency(installment.totalAmount)}
               </p>
             </div>
+          )}
+
+          {/* Payment History */}
+          {installment.payments && installment.payments.length > 0 && (
+            <PaymentHistory 
+              payments={installment.payments}
+            />
           )}
         </div>
       ))}

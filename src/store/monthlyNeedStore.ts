@@ -1,7 +1,57 @@
 import { create } from 'zustand'
-import type { MonthlyNeed, MonthlyNeedPayment, MonthlyNeedInput } from '../types'
+import type { MonthlyNeed, MonthlyNeedPayment, MonthlyNeedInput, RecurrencePeriod } from '../types'
 import { generateId } from '../utils/idGenerator'
 import { getNowISO, getCurrentYearMonth } from '../utils/dateUtils'
+
+/**
+ * Check if a monthly need should be shown for a specific month based on recurrence
+ * @param need The monthly need to check
+ * @param targetMonth The month to check (YYYY-MM format)
+ * @returns true if the need should be shown for the target month
+ */
+export function shouldShowForMonth(need: MonthlyNeed, targetMonth: string): boolean {
+  const recurrence = need.recurrencePeriod || 'forever'
+  const startMonth = need.startMonth || need.createdAt.substring(0, 7)
+  
+  // Parse months
+  const [targetYear, targetMonthNum] = targetMonth.split('-').map(Number)
+  const [startYear, startMonthNum] = startMonth.split('-').map(Number)
+  
+  // Calculate months difference
+  const targetTotalMonths = targetYear * 12 + targetMonthNum
+  const startTotalMonths = startYear * 12 + startMonthNum
+  const monthsDiff = targetTotalMonths - startTotalMonths
+  
+  // Don't show for months before start
+  if (monthsDiff < 0) return false
+  
+  switch (recurrence) {
+    case 'monthly':
+      // Show for 12 months from start
+      return monthsDiff < 12
+    
+    case 'yearly':
+      // Show only on the same month each year
+      return targetMonthNum === startMonthNum
+    
+    case 'forever':
+    default:
+      // Always show
+      return true
+  }
+}
+
+/**
+ * Get recurrence label for display
+ */
+export function getRecurrenceLabel(period: RecurrencePeriod): string {
+  switch (period) {
+    case 'monthly': return 'Bulanan (12 bulan)'
+    case 'yearly': return 'Tahunan'
+    case 'forever': return 'Selamanya'
+    default: return 'Selamanya'
+  }
+}
 
 interface MonthlyNeedState {
   needs: MonthlyNeed[]
@@ -15,6 +65,7 @@ interface MonthlyNeedState {
   unmarkAsPaid: (needId: string, yearMonth: string) => Promise<void>
   isNeedPaid: (needId: string, yearMonth?: string) => boolean
   getPaymentForMonth: (needId: string, yearMonth: string) => MonthlyNeedPayment | undefined
+  getNeedsForMonth: (yearMonth: string) => MonthlyNeed[]
 }
 
 export const useMonthlyNeedStore = create<MonthlyNeedState>((set, get) => ({
@@ -39,6 +90,7 @@ export const useMonthlyNeedStore = create<MonthlyNeedState>((set, get) => ({
   addNeed: async (input: MonthlyNeedInput) => {
     const { needs } = get()
     const now = getNowISO()
+    const currentMonth = getCurrentYearMonth()
 
     const newNeed: MonthlyNeed = {
       id: generateId(),
@@ -46,6 +98,9 @@ export const useMonthlyNeedStore = create<MonthlyNeedState>((set, get) => ({
       budgetAmount: input.budgetAmount,
       dueDay: input.dueDay,
       subcategory: input.subcategory,
+      recurrencePeriod: input.recurrencePeriod || 'forever',
+      startMonth: input.startMonth || currentMonth,
+      autoGenerateTransaction: input.autoGenerateTransaction || false,
       note: input.note,
       createdAt: now,
     }
@@ -138,5 +193,10 @@ export const useMonthlyNeedStore = create<MonthlyNeedState>((set, get) => ({
   getPaymentForMonth: (needId: string, yearMonth: string) => {
     const { payments } = get()
     return payments.find(p => p.needId === needId && p.yearMonth === yearMonth)
+  },
+
+  getNeedsForMonth: (yearMonth: string) => {
+    const { needs } = get()
+    return needs.filter(need => shouldShowForMonth(need, yearMonth))
   },
 }))

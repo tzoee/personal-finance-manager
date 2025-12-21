@@ -7,6 +7,7 @@ import {
   CreditCard,
   CalendarCheck,
   PiggyBank,
+  Wallet,
   Settings,
 } from 'lucide-react'
 
@@ -15,9 +16,10 @@ const navItems = [
   { to: '/transactions', icon: Receipt, label: 'Transaksi' },
   { to: '/categories', icon: Tags, label: 'Kategori' },
   { to: '/wishlist', icon: Heart, label: 'Wishlist' },
+  { to: '/savings', icon: PiggyBank, label: 'Tabungan' },
   { to: '/installments', icon: CreditCard, label: 'Cicilan' },
   { to: '/monthly-needs', icon: CalendarCheck, label: 'Kebutuhan' },
-  { to: '/assets', icon: PiggyBank, label: 'Aset' },
+  { to: '/assets', icon: Wallet, label: 'Aset' },
   { to: '/settings', icon: Settings, label: 'Pengaturan' },
 ]
 

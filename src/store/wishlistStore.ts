@@ -12,6 +12,9 @@ interface WishlistState {
   deleteItem: (id: string) => Promise<void>
   markAsBought: (id: string) => Promise<void>
   updateSavedAmount: (id: string, amount: number) => Promise<void>
+  linkToSavings: (id: string, savingsId: string) => Promise<void>
+  unlinkFromSavings: (id: string) => Promise<void>
+  syncFromSavings: (id: string, savedAmount: number) => Promise<void>
 }
 
 export const useWishlistStore = create<WishlistState>((set, get) => ({
@@ -43,6 +46,9 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
       priority: input.priority,
       targetDate: input.targetDate,
       currentSaved: input.currentSaved ?? 0,
+      linkedSavingsId: input.linkedSavingsId,
+      category: input.category,
+      imageUrl: input.imageUrl,
       status: 'planned',
       note: input.note,
       createdAt: now,
@@ -112,6 +118,65 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
         return {
           ...item,
           currentSaved: amount,
+          status: item.status === 'bought' ? 'bought' : newStatus,
+          updatedAt: now,
+        }
+      }
+      return item
+    })
+
+    localStorage.setItem('pfm_wishlist', JSON.stringify(updated))
+    set({ items: updated })
+  },
+
+  linkToSavings: async (id: string, savingsId: string) => {
+    const { items } = get()
+    const now = getNowISO()
+
+    const updated = items.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          linkedSavingsId: savingsId,
+          updatedAt: now,
+        }
+      }
+      return item
+    })
+
+    localStorage.setItem('pfm_wishlist', JSON.stringify(updated))
+    set({ items: updated })
+  },
+
+  unlinkFromSavings: async (id: string) => {
+    const { items } = get()
+    const now = getNowISO()
+
+    const updated = items.map(item => {
+      if (item.id === id) {
+        return {
+          ...item,
+          linkedSavingsId: undefined,
+          updatedAt: now,
+        }
+      }
+      return item
+    })
+
+    localStorage.setItem('pfm_wishlist', JSON.stringify(updated))
+    set({ items: updated })
+  },
+
+  syncFromSavings: async (id: string, savedAmount: number) => {
+    const { items } = get()
+    const now = getNowISO()
+
+    const updated = items.map(item => {
+      if (item.id === id) {
+        const newStatus = savedAmount >= item.targetPrice ? 'saving' : item.status
+        return {
+          ...item,
+          currentSaved: savedAmount,
           status: item.status === 'bought' ? 'bought' : newStatus,
           updatedAt: now,
         }

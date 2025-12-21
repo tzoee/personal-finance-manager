@@ -1,14 +1,15 @@
 /**
  * Installments Page
- * Manage monthly installments
+ * Manage monthly installments with partial payment support
  */
 
 import { useState, useEffect } from 'react'
 import { CreditCard, Plus } from 'lucide-react'
-import { useInstallments } from '../hooks/useInstallments'
+import { useInstallments, InstallmentWithDetails } from '../hooks/useInstallments'
 import InstallmentForm from '../components/installments/InstallmentForm'
 import InstallmentList from '../components/installments/InstallmentList'
-import type { Installment, InstallmentInput } from '../types'
+import PaymentForm from '../components/installments/PaymentForm'
+import type { Installment, InstallmentInput, InstallmentPaymentInput } from '../types'
 import { formatCurrency } from '../utils/formatters'
 
 export default function Installments() {
@@ -22,11 +23,13 @@ export default function Installments() {
     addInstallment,
     updateInstallment,
     deleteInstallment,
+    addPayment,
   } = useInstallments()
 
   const [showForm, setShowForm] = useState(false)
   const [editingInstallment, setEditingInstallment] = useState<Installment | null>(null)
   const [deletingInstallment, setDeletingInstallment] = useState<Installment | null>(null)
+  const [payingInstallment, setPayingInstallment] = useState<InstallmentWithDetails | null>(null)
   const [showPaidOff, setShowPaidOff] = useState(false)
 
   useEffect(() => {
@@ -53,6 +56,16 @@ export default function Installments() {
     if (!deletingInstallment) return
     await deleteInstallment(deletingInstallment.id)
     setDeletingInstallment(null)
+  }
+
+  const handlePayment = async (input: InstallmentPaymentInput) => {
+    if (!payingInstallment) return { success: false, error: 'No installment selected' }
+    
+    const result = await addPayment(payingInstallment.id, input)
+    if (result.success) {
+      setPayingInstallment(null)
+    }
+    return result
   }
 
   const displayedInstallments = showPaidOff ? paidOffInstallments : activeInstallments
@@ -124,6 +137,7 @@ export default function Installments() {
         installments={displayedInstallments}
         onEdit={setEditingInstallment}
         onDelete={setDeletingInstallment}
+        onPay={setPayingInstallment}
       />
 
       {/* Add Form Modal */}
@@ -172,6 +186,18 @@ export default function Installments() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Payment Form Modal */}
+      {payingInstallment && (
+        <PaymentForm
+          installmentName={payingInstallment.name}
+          monthlyAmount={payingInstallment.monthlyAmount}
+          remainingThisPeriod={payingInstallment.remainingThisPeriod}
+          totalRemaining={payingInstallment.remainingAmount}
+          onSubmit={handlePayment}
+          onCancel={() => setPayingInstallment(null)}
+        />
       )}
     </div>
   )

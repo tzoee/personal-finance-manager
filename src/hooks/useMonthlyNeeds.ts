@@ -1,10 +1,10 @@
 /**
  * useMonthlyNeeds Hook
- * Provides monthly needs management with budget comparison
+ * Provides monthly needs management with budget comparison and recurrence support
  */
 
 import { useCallback, useMemo } from 'react'
-import { useMonthlyNeedStore } from '../store/monthlyNeedStore'
+import { useMonthlyNeedStore, shouldShowForMonth, getRecurrenceLabel } from '../store/monthlyNeedStore'
 import { validateMonthlyNeed } from '../utils/validators'
 import type { MonthlyNeed, MonthlyNeedInput, BudgetComparison } from '../types'
 
@@ -13,6 +13,7 @@ export interface MonthlyNeedWithStatus extends MonthlyNeed {
   actualAmount: number
   difference: number
   isOverBudget: boolean
+  recurrenceLabel: string
 }
 
 export function useMonthlyNeeds() {
@@ -26,6 +27,7 @@ export function useMonthlyNeeds() {
     deleteNeed: storeDeleteNeed,
     markAsPaid: storeMarkAsPaid,
     unmarkAsPaid: storeUnmarkAsPaid,
+    getNeedsForMonth,
   } = useMonthlyNeedStore()
 
   /**
@@ -91,12 +93,15 @@ export function useMonthlyNeeds() {
   }, [getCurrentYearMonth, storeUnmarkAsPaid])
 
   /**
-   * Get needs with payment status for current month
+   * Get needs with payment status for current month (filtered by recurrence)
    */
   const needsWithStatus = useMemo((): MonthlyNeedWithStatus[] => {
     const yearMonth = getCurrentYearMonth()
     
-    return needs.map(need => {
+    // Filter needs by recurrence period
+    const filteredNeeds = getNeedsForMonth(yearMonth)
+    
+    return filteredNeeds.map(need => {
       const payment = payments.find(
         p => p.needId === need.id && p.yearMonth === yearMonth
       )
@@ -104,6 +109,7 @@ export function useMonthlyNeeds() {
       const actualAmount = payment?.actualAmount || 0
       const difference = need.budgetAmount - actualAmount
       const isOverBudget = actualAmount > need.budgetAmount
+      const recurrenceLabel = getRecurrenceLabel(need.recurrencePeriod || 'forever')
 
       return {
         ...need,
@@ -111,9 +117,10 @@ export function useMonthlyNeeds() {
         actualAmount,
         difference,
         isOverBudget,
+        recurrenceLabel,
       }
     })
-  }, [needs, payments, getCurrentYearMonth])
+  }, [needs, payments, getCurrentYearMonth, getNeedsForMonth])
 
   /**
    * Get budget comparison for current month
@@ -162,5 +169,9 @@ export function useMonthlyNeeds() {
     deleteNeed,
     markAsPaid,
     unmarkAsPaid,
+
+    // Utilities
+    getRecurrenceLabel,
+    shouldShowForMonth,
   }
 }

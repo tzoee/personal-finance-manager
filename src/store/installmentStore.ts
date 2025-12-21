@@ -1,8 +1,38 @@
 import { create } from 'zustand'
-import type { Installment, InstallmentInput } from '../types'
+import type { Installment, InstallmentInput, InstallmentPayment, InstallmentPaymentInput } from '../types'
 import { generateId } from '../utils/idGenerator'
 import { getNowISO } from '../utils/dateUtils'
-import { calculateInstallmentCurrentMonth } from '../utils/calculations'
+
+/**
+ * Calculate installment status based on payments (not date-based)
+ * This fixes the bug where tenor 1 month was immediately marked as paid_off
+ */
+export function calculateInstallmentStatusFromPayments(installment: Installment): {
+  status: 'active' | 'paid_off'
+  currentMonth: number
+  totalPaid: number
+  periodPaid: number
+  remainingThisPeriod: number
+} {
+  const payments = installment.payments || []
+  const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0)
+  const totalRequired = installment.totalTenor * installment.monthlyAmount
+  
+  // Calculate completed months based on payments
+  const completedMonths = Math.floor(totalPaid / installment.monthlyAmount)
+  const periodPaid = totalPaid % installment.monthlyAmount
+  
+  // Status is paid_off only when total paid >= total required
+  const status = totalPaid >= totalRequired ? 'paid_off' : 'active'
+  
+  return {
+    status,
+    currentMonth: Math.min(completedMonths, installment.totalTenor),
+    totalPaid,
+    periodPaid,
+    remainingThisPeriod: installment.monthlyAmount - periodPaid
+  }
+}
 
 interface InstallmentState {
   installments: Installment[]
@@ -13,6 +43,9 @@ interface InstallmentState {
   deleteInstallment: (id: string) => Promise<void>
   getActiveInstallments: () => Installment[]
   updateInstallmentStatuses: () => Promise<void>
+  // Payment functions
+  addPayment: (installmentId: string, input: InstallmentPaymentInput) => Promise<InstallmentPayment | null>
+  getPayments: (installmentId: string) => InstallmentPayment[]
 }
 
 export const useInstallmentStore = create<InstallmentState>((set, get) => ({
@@ -24,14 +57,19 @@ export const useInstallmentStore = create<InstallmentState>((set, get) => ({
       const stored = localStorage.getItem('pfm_installments')
       if (stored) {
         const parsed = JSON.parse(stored) as Installment[]
-        // Update current month positions
-        const updated = parsed.map(inst => ({
-          ...inst,
-          currentMonth: calculateInstallmentCurrentMonth(inst.startDate),
-          status: calculateInstallmentCurrentMonth(inst.startDate) >= inst.totalTenor ? 'paid_off' as const : inst.status,
-        }))
-        localStorage.setItem('pfm_installments', JSON.stringify(updated))
-        set({ installments: updated, initialized: true })
+        // Migrate: ensure all installments have payments array
+        const migrated = parsed.map(inst => {
+          const payments = inst.payments || []
+          const { status, currentMonth } = calculateInstallmentStatusFromPayments({ ...inst, payments })
+          return {
+            ...inst,
+            payments,
+            currentMonth,
+            status,
+          }
+        })
+        localStorage.setItem('pfm_installments', JSON.stringify(migrated))
+        set({ installments: migrated, initialized: true })
       } else {
         set({ installments: [], initialized: true })
       }
@@ -43,18 +81,19 @@ export const useInstallmentStore = create<InstallmentState>((set, get) => ({
   addInstallment: async (input: InstallmentInput) => {
     const { installments } = get()
     const now = getNowISO()
-    const currentMonth = calculateInstallmentCurrentMonth(input.startDate)
 
+    // New installments always start as active with empty payments
     const newInstallment: Installment = {
       id: generateId(),
       name: input.name.trim(),
       totalTenor: input.totalTenor,
-      currentMonth,
+      currentMonth: 0, // Always start at 0
       monthlyAmount: input.monthlyAmount,
       startDate: input.startDate,
       subcategory: input.subcategory,
-      status: currentMonth >= input.totalTenor ? 'paid_off' : 'active',
+      status: 'active', // Always start as active
       autoGenerateTransaction: input.autoGenerateTransaction ?? false,
+      payments: [], // Empty payments array
       createdAt: now,
       updatedAt: now,
     }
@@ -72,17 +111,18 @@ export const useInstallmentStore = create<InstallmentState>((set, get) => ({
 
     const updated = installments.map(inst => {
       if (inst.id === id) {
-        const startDate = input.startDate ?? inst.startDate
-        const totalTenor = input.totalTenor ?? inst.totalTenor
-        const currentMonth = calculateInstallmentCurrentMonth(startDate)
-
-        return {
+        const updatedInst = {
           ...inst,
           ...input,
           name: input.name?.trim() ?? inst.name,
-          currentMonth,
-          status: currentMonth >= totalTenor ? 'paid_off' as const : 'active' as const,
           updatedAt: now,
+        }
+        // Recalculate status based on payments
+        const { status, currentMonth } = calculateInstallmentStatusFromPayments(updatedInst)
+        return {
+          ...updatedInst,
+          currentMonth,
+          status,
         }
       }
       return inst
@@ -108,14 +148,13 @@ export const useInstallmentStore = create<InstallmentState>((set, get) => ({
     const now = getNowISO()
 
     const updated = installments.map(inst => {
-      const currentMonth = calculateInstallmentCurrentMonth(inst.startDate)
-      const newStatus = currentMonth >= inst.totalTenor ? 'paid_off' as const : 'active' as const
+      const { status, currentMonth } = calculateInstallmentStatusFromPayments(inst)
 
-      if (inst.currentMonth !== currentMonth || inst.status !== newStatus) {
+      if (inst.currentMonth !== currentMonth || inst.status !== status) {
         return {
           ...inst,
           currentMonth,
-          status: newStatus,
+          status,
           updatedAt: now,
         }
       }
@@ -124,5 +163,48 @@ export const useInstallmentStore = create<InstallmentState>((set, get) => ({
 
     localStorage.setItem('pfm_installments', JSON.stringify(updated))
     set({ installments: updated })
+  },
+
+  addPayment: async (installmentId: string, input: InstallmentPaymentInput) => {
+    const { installments } = get()
+    const now = getNowISO()
+    
+    const installment = installments.find(i => i.id === installmentId)
+    if (!installment || installment.status === 'paid_off') {
+      return null
+    }
+
+    const newPayment: InstallmentPayment = {
+      id: generateId(),
+      installmentId,
+      amount: input.amount,
+      date: input.date || now.split('T')[0],
+      note: input.note,
+      createdAt: now,
+    }
+
+    const updated = installments.map(inst => {
+      if (inst.id === installmentId) {
+        const updatedPayments = [...(inst.payments || []), newPayment]
+        const updatedInst = { ...inst, payments: updatedPayments, updatedAt: now }
+        const { status, currentMonth } = calculateInstallmentStatusFromPayments(updatedInst)
+        return {
+          ...updatedInst,
+          currentMonth,
+          status,
+        }
+      }
+      return inst
+    })
+
+    localStorage.setItem('pfm_installments', JSON.stringify(updated))
+    set({ installments: updated })
+
+    return newPayment
+  },
+
+  getPayments: (installmentId: string) => {
+    const installment = get().installments.find(i => i.id === installmentId)
+    return installment?.payments || []
   },
 }))

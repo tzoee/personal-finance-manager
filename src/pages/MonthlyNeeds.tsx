@@ -1,12 +1,12 @@
 /**
  * Monthly Needs Page
- * Manage monthly recurring expenses with budget tracking
+ * Manage monthly recurring expenses with budget tracking and recurrence support
  */
 
 import { useState, useEffect } from 'react'
-import { Receipt, Plus, Check, X, Edit2, Trash2 } from 'lucide-react'
+import { Receipt, Plus, Check, X, Edit2, Trash2, RefreshCw } from 'lucide-react'
 import { useMonthlyNeeds } from '../hooks/useMonthlyNeeds'
-import type { MonthlyNeed, MonthlyNeedInput } from '../types'
+import type { MonthlyNeed, MonthlyNeedInput, RecurrencePeriod } from '../types'
 import { formatCurrency } from '../utils/formatters'
 
 export default function MonthlyNeeds() {
@@ -33,6 +33,8 @@ export default function MonthlyNeeds() {
   const [formBudget, setFormBudget] = useState('')
   const [formDueDay, setFormDueDay] = useState('')
   const [formNote, setFormNote] = useState('')
+  const [formRecurrence, setFormRecurrence] = useState<RecurrencePeriod>('forever')
+  const [formAutoGenerate, setFormAutoGenerate] = useState(false)
   const [formErrors, setFormErrors] = useState<string[]>([])
 
   useEffect(() => {
@@ -44,6 +46,8 @@ export default function MonthlyNeeds() {
     setFormBudget('')
     setFormDueDay('')
     setFormNote('')
+    setFormRecurrence('forever')
+    setFormAutoGenerate(false)
     setFormErrors([])
   }
 
@@ -53,6 +57,8 @@ export default function MonthlyNeeds() {
     setFormBudget(need.budgetAmount.toString())
     setFormDueDay(need.dueDay?.toString() || '')
     setFormNote(need.note || '')
+    setFormRecurrence(need.recurrencePeriod || 'forever')
+    setFormAutoGenerate(need.autoGenerateTransaction || false)
     setShowForm(true)
   }
 
@@ -77,6 +83,8 @@ export default function MonthlyNeeds() {
       name: formName.trim(),
       budgetAmount: parsedBudget,
       dueDay: parsedDueDay,
+      recurrencePeriod: formRecurrence,
+      autoGenerateTransaction: formAutoGenerate,
       note: formNote.trim() || undefined,
     }
 
@@ -195,9 +203,17 @@ export default function MonthlyNeeds() {
                     {need.isPaid && <Check className="w-4 h-4" />}
                   </button>
                   <div>
-                    <h3 className={`font-medium ${need.isPaid ? 'text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
-                      {need.name}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className={`font-medium ${need.isPaid ? 'text-gray-500 line-through' : 'text-gray-900 dark:text-gray-100'}`}>
+                        {need.name}
+                      </h3>
+                      {need.recurrencePeriod && need.recurrencePeriod !== 'forever' && (
+                        <span className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded flex items-center gap-1">
+                          <RefreshCw className="w-3 h-3" />
+                          {need.recurrenceLabel}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       Budget: {formatCurrency(need.budgetAmount)}
                       {need.dueDay && ` • Jatuh tempo: tanggal ${need.dueDay}`}
@@ -252,6 +268,34 @@ export default function MonthlyNeeds() {
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Catatan (opsional)</label>
                 <input type="text" value={formNote} onChange={(e) => setFormNote(e.target.value)} placeholder="Catatan..." className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100" />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Periode Pengulangan</label>
+                <select 
+                  value={formRecurrence} 
+                  onChange={(e) => setFormRecurrence(e.target.value as RecurrencePeriod)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                >
+                  <option value="forever">Selamanya</option>
+                  <option value="monthly">Bulanan (12 bulan)</option>
+                  <option value="yearly">Tahunan (bulan yang sama)</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  {formRecurrence === 'monthly' && 'Akan muncul selama 12 bulan dari bulan ini'}
+                  {formRecurrence === 'yearly' && 'Akan muncul setiap tahun di bulan yang sama'}
+                  {formRecurrence === 'forever' && 'Akan muncul setiap bulan tanpa batas waktu'}
+                </p>
+              </div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formAutoGenerate}
+                  onChange={(e) => setFormAutoGenerate(e.target.checked)}
+                  className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">
+                  Auto-generate transaksi setiap bulan
+                </span>
+              </label>
               {formErrors.length > 0 && (
                 <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
                   {formErrors.map((error, i) => <p key={i} className="text-sm text-red-600 dark:text-red-400">{error}</p>)}

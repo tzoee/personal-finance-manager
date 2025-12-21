@@ -4,9 +4,9 @@
  */
 
 import { useCallback, useMemo } from 'react'
-import { useInstallmentStore } from '../store/installmentStore'
+import { useInstallmentStore, calculateInstallmentStatusFromPayments } from '../store/installmentStore'
 import { validateInstallment } from '../utils/validators'
-import type { Installment, InstallmentInput } from '../types'
+import type { Installment, InstallmentInput, InstallmentPayment, InstallmentPaymentInput } from '../types'
 
 export interface InstallmentWithDetails extends Installment {
   remainingMonths: number
@@ -14,6 +14,8 @@ export interface InstallmentWithDetails extends Installment {
   totalAmount: number
   paidAmount: number
   progressPercentage: number
+  periodPaid: number // Amount paid in current period
+  remainingThisPeriod: number // Remaining to complete current period
 }
 
 export function useInstallments() {
@@ -26,6 +28,8 @@ export function useInstallments() {
     deleteInstallment: storeDeleteInstallment,
     getActiveInstallments,
     updateInstallmentStatuses,
+    addPayment: storeAddPayment,
+    getPayments: storeGetPayments,
   } = useInstallmentStore()
 
   /**
@@ -65,22 +69,28 @@ export function useInstallments() {
   }, [storeDeleteInstallment])
 
   /**
-   * Calculate installment details
+   * Calculate installment details using payment-based calculation
    */
   const calculateDetails = useCallback((installment: Installment): InstallmentWithDetails => {
     const totalAmount = installment.monthlyAmount * installment.totalTenor
-    const paidAmount = installment.monthlyAmount * Math.min(installment.currentMonth, installment.totalTenor)
-    const remainingMonths = Math.max(installment.totalTenor - installment.currentMonth, 0)
-    const remainingAmount = installment.monthlyAmount * remainingMonths
-    const progressPercentage = (installment.currentMonth / installment.totalTenor) * 100
+    
+    // Use payment-based calculation
+    const { totalPaid, currentMonth, periodPaid, remainingThisPeriod } = 
+      calculateInstallmentStatusFromPayments(installment)
+    
+    const remainingMonths = Math.max(installment.totalTenor - currentMonth, 0)
+    const remainingAmount = Math.max(totalAmount - totalPaid, 0)
+    const progressPercentage = (totalPaid / totalAmount) * 100
 
     return {
       ...installment,
       remainingMonths,
       remainingAmount,
       totalAmount,
-      paidAmount,
+      paidAmount: totalPaid,
       progressPercentage: Math.min(progressPercentage, 100),
+      periodPaid,
+      remainingThisPeriod,
     }
   }, [])
 
@@ -119,6 +129,40 @@ export function useInstallments() {
     return activeInstallments.reduce((sum, i) => sum + i.remainingAmount, 0)
   }, [activeInstallments])
 
+  /**
+   * Add payment to an installment
+   */
+  const addPayment = useCallback(async (
+    installmentId: string,
+    input: InstallmentPaymentInput
+  ): Promise<{ success: boolean; payment?: InstallmentPayment; error?: string }> => {
+    if (input.amount <= 0) {
+      return { success: false, error: 'Jumlah pembayaran harus lebih dari 0' }
+    }
+
+    const payment = await storeAddPayment(installmentId, input)
+    if (!payment) {
+      return { success: false, error: 'Cicilan tidak ditemukan atau sudah lunas' }
+    }
+
+    return { success: true, payment }
+  }, [storeAddPayment])
+
+  /**
+   * Get payment history for an installment
+   */
+  const getPaymentHistory = useCallback((installmentId: string): InstallmentPayment[] => {
+    return storeGetPayments(installmentId)
+  }, [storeGetPayments])
+
+  /**
+   * Get installment by ID with details
+   */
+  const getInstallmentById = useCallback((id: string): InstallmentWithDetails | undefined => {
+    const installment = installments.find(i => i.id === id)
+    return installment ? calculateDetails(installment) : undefined
+  }, [installments, calculateDetails])
+
   return {
     // State
     installments,
@@ -135,9 +179,12 @@ export function useInstallments() {
     updateInstallment,
     deleteInstallment,
     updateInstallmentStatuses,
+    addPayment,
 
     // Queries
     getActiveInstallments,
     calculateDetails,
+    getPaymentHistory,
+    getInstallmentById,
   }
 }

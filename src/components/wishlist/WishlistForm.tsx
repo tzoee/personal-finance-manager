@@ -30,6 +30,7 @@ export default function WishlistForm({
   const [priority, setPriority] = useState<Priority>(item?.priority || 'medium')
   const [targetDate, setTargetDate] = useState(item?.targetDate || '')
   const [currentSaved, setCurrentSaved] = useState(item?.currentSaved?.toString() || '0')
+  const [category, setCategory] = useState(item?.category || '')
   const [note, setNote] = useState(item?.note || '')
   const [errors, setErrors] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -59,6 +60,7 @@ export default function WishlistForm({
         priority,
         targetDate: targetDate || undefined,
         currentSaved: parsedCurrentSaved,
+        category: category.trim() || undefined,
         note: note.trim() || undefined,
       }
 
@@ -174,6 +176,22 @@ export default function WishlistForm({
                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
                        focus:ring-2 focus:ring-primary-500 focus:border-transparent
                        text-right font-mono"
+            />
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              Kategori (opsional)
+            </label>
+            <input
+              type="text"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="Contoh: Elektronik, Fashion, Hobi"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                       bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                       focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
           </div>
 

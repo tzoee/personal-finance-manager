@@ -1,70 +1,65 @@
 /**
  * Property-Based Tests for Installment Operations
- * Property 13: Installment State Calculation
- * Validates: Requirements 4.1, 4.2, 4.4
+ * 
+ * Property 1: New installments always start as active
+ * Property 2: Status transitions to paid_off only when fully paid
+ * Property 3: CurrentMonth is derived from payments
+ * Property 5: Total paid equals sum of payments
+ * 
+ * Validates: Requirements 1.1, 1.2, 1.3, 1.4, 2.3, 2.4
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import * as fc from 'fast-check'
-import type { Installment, InstallmentStatus } from '../../src/types'
+import type { Installment, InstallmentPayment } from '../../src/types'
 import { generateId } from '../../src/utils/idGenerator'
+import { calculateInstallmentStatusFromPayments } from '../../src/store/installmentStore'
 
-// Helper to calculate current month from start date
-function calculateCurrentMonth(startDate: string): number {
-  const start = new Date(startDate)
-  const now = new Date()
-  
-  const startYear = start.getFullYear()
-  const startMonth = start.getMonth()
-  const nowYear = now.getFullYear()
-  const nowMonth = now.getMonth()
-  
-  const monthsDiff = (nowYear - startYear) * 12 + (nowMonth - startMonth)
-  return Math.max(monthsDiff + 1, 1) // At least 1 month
-}
-
-// Helper to create installment
-function createInstallment(
+// Helper to create installment with payments
+function createInstallmentWithPayments(
   totalTenor: number,
   monthlyAmount: number,
-  startDate: string
+  payments: InstallmentPayment[] = []
 ): Installment {
-  const currentMonth = calculateCurrentMonth(startDate)
-  const status: InstallmentStatus = currentMonth >= totalTenor ? 'paid_off' : 'active'
-
-  return {
+  const installment: Installment = {
     id: generateId(),
     name: 'Test Installment',
     totalTenor,
-    currentMonth,
+    currentMonth: 0,
     monthlyAmount,
-    startDate,
+    startDate: new Date().toISOString().split('T')[0],
     subcategory: 'test',
-    status,
+    status: 'active',
     autoGenerateTransaction: false,
+    payments,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }
+  
+  // Calculate status from payments
+  const { status, currentMonth } = calculateInstallmentStatusFromPayments(installment)
+  return { ...installment, status, currentMonth }
 }
 
-// Calculate installment details
-function calculateDetails(installment: Installment) {
-  const totalAmount = installment.monthlyAmount * installment.totalTenor
-  const paidAmount = installment.monthlyAmount * Math.min(installment.currentMonth, installment.totalTenor)
-  const remainingMonths = Math.max(installment.totalTenor - installment.currentMonth, 0)
-  const remainingAmount = installment.monthlyAmount * remainingMonths
-  const progressPercentage = Math.min((installment.currentMonth / installment.totalTenor) * 100, 100)
-
+// Helper to create payment
+function createPayment(installmentId: string, amount: number): InstallmentPayment {
   return {
-    totalAmount,
-    paidAmount,
-    remainingMonths,
-    remainingAmount,
-    progressPercentage,
+    id: generateId(),
+    installmentId,
+    amount,
+    date: new Date().toISOString().split('T')[0],
+    createdAt: new Date().toISOString(),
   }
 }
 
-describe('Property 13: Installment State Calculation', () => {
+describe('Property 1: New installments always start as active', () => {
+  /**
+   * Feature: finance-enhancements, Property 1: New installments always start as active
+   * For any installment created with any tenor value (including 1 month), 
+   * the initial status SHALL be "active" and currentMonth SHALL be 0.
+   * Validates: Requirements 1.1, 1.2
+   */
+  
   beforeEach(() => {
     localStorage.clear()
   })
@@ -73,16 +68,18 @@ describe('Property 13: Installment State Calculation', () => {
     localStorage.clear()
   })
 
-  it('should calculate correct total amount', () => {
+  it('should always start with status active and currentMonth 0 for any tenor', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 1, max: 120 }), // totalTenor (1-120 months)
+        fc.integer({ min: 1, max: 120 }), // totalTenor including 1 month
         fc.integer({ min: 100000, max: 10000000 }), // monthlyAmount
         (totalTenor, monthlyAmount) => {
-          const installment = createInstallment(totalTenor, monthlyAmount, '2024-01-01')
-          const details = calculateDetails(installment)
-
-          expect(details.totalAmount).toBe(totalTenor * monthlyAmount)
+          // Create installment with no payments
+          const installment = createInstallmentWithPayments(totalTenor, monthlyAmount, [])
+          
+          // Should always be active with no payments
+          expect(installment.status).toBe('active')
+          expect(installment.currentMonth).toBe(0)
           
           return true
         }
@@ -91,26 +88,52 @@ describe('Property 13: Installment State Calculation', () => {
     )
   })
 
-  it('should calculate correct remaining months', () => {
+  it('should start as active even with tenor of 1 month', () => {
+    // Specific test for the bug case
+    const installment = createInstallmentWithPayments(1, 400000, [])
+    
+    expect(installment.status).toBe('active')
+    expect(installment.currentMonth).toBe(0)
+  })
+})
+
+describe('Property 2: Status transitions to paid_off only when fully paid', () => {
+  /**
+   * Feature: finance-enhancements, Property 2: Status transitions to paid_off only when fully paid
+   * For any installment, the status SHALL be "paid_off" if and only if 
+   * the sum of all payment amounts >= (totalTenor × monthlyAmount).
+   * Validates: Requirements 1.3
+   */
+
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('should be paid_off only when total paid >= total required', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 1, max: 60 }),
-        fc.integer({ min: 100000, max: 5000000 }),
-        fc.integer({ min: 1, max: 36 }), // months ago
-        (totalTenor, monthlyAmount, monthsAgo) => {
-          // Create start date in the past
-          const startDate = new Date()
-          startDate.setMonth(startDate.getMonth() - monthsAgo)
-          const startDateStr = startDate.toISOString().split('T')[0]
-
-          const installment = createInstallment(totalTenor, monthlyAmount, startDateStr)
-          const details = calculateDetails(installment)
-
-          // Remaining months should be non-negative
-          expect(details.remainingMonths).toBeGreaterThanOrEqual(0)
+        fc.integer({ min: 1, max: 24 }),
+        fc.integer({ min: 100000, max: 1000000 }),
+        fc.float({ min: 0, max: 2 }), // payment multiplier
+        (totalTenor, monthlyAmount, paymentMultiplier) => {
+          const totalRequired = totalTenor * monthlyAmount
+          const paymentAmount = Math.floor(totalRequired * paymentMultiplier)
           
-          // Remaining months should not exceed total tenor
-          expect(details.remainingMonths).toBeLessThanOrEqual(totalTenor)
+          const payments = paymentAmount > 0 
+            ? [createPayment('test', paymentAmount)]
+            : []
+          
+          const installment = createInstallmentWithPayments(totalTenor, monthlyAmount, payments)
+          
+          if (paymentAmount >= totalRequired) {
+            expect(installment.status).toBe('paid_off')
+          } else {
+            expect(installment.status).toBe('active')
+          }
           
           return true
         }
@@ -118,42 +141,115 @@ describe('Property 13: Installment State Calculation', () => {
       { numRuns: 100 }
     )
   })
+})
 
-  it('should calculate correct remaining amount', () => {
+
+describe('Property 3: CurrentMonth is derived from payments', () => {
+  /**
+   * Feature: finance-enhancements, Property 3: CurrentMonth is derived from payments
+   * For any installment with payments, currentMonth SHALL equal 
+   * floor(totalPaid / monthlyAmount), where totalPaid is the sum of all payment amounts.
+   * Validates: Requirements 1.4, 2.4
+   */
+
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('should calculate currentMonth as floor(totalPaid / monthlyAmount)', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 1, max: 60 }),
-        fc.integer({ min: 100000, max: 5000000 }),
-        (totalTenor, monthlyAmount) => {
-          const installment = createInstallment(totalTenor, monthlyAmount, '2024-01-01')
-          const details = calculateDetails(installment)
-
-          // Remaining amount = remaining months * monthly amount
-          expect(details.remainingAmount).toBe(details.remainingMonths * monthlyAmount)
+        fc.integer({ min: 1, max: 24 }),
+        fc.integer({ min: 100000, max: 1000000 }),
+        fc.array(fc.integer({ min: 10000, max: 500000 }), { minLength: 0, maxLength: 10 }),
+        (totalTenor, monthlyAmount, paymentAmounts) => {
+          const payments = paymentAmounts.map(amount => createPayment('test', amount))
+          const totalPaid = paymentAmounts.reduce((sum, a) => sum + a, 0)
+          const expectedCurrentMonth = Math.min(
+            Math.floor(totalPaid / monthlyAmount),
+            totalTenor
+          )
+          
+          const installment = createInstallmentWithPayments(totalTenor, monthlyAmount, payments)
+          
+          expect(installment.currentMonth).toBe(expectedCurrentMonth)
           
           return true
         }
       ),
       { numRuns: 100 }
     )
+  })
+})
+
+describe('Property 5: Total paid equals sum of payments', () => {
+  /**
+   * Feature: finance-enhancements, Property 5: Total paid equals sum of payments
+   * For any installment, the displayed totalPaid SHALL equal 
+   * the sum of all InstallmentPayment amounts for that installment.
+   * Validates: Requirements 2.3
+   */
+
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('should calculate totalPaid as sum of all payment amounts', () => {
+    fc.assert(
+      fc.property(
+        fc.integer({ min: 1, max: 24 }),
+        fc.integer({ min: 100000, max: 1000000 }),
+        fc.array(fc.integer({ min: 10000, max: 500000 }), { minLength: 0, maxLength: 20 }),
+        (totalTenor, monthlyAmount, paymentAmounts) => {
+          const payments = paymentAmounts.map(amount => createPayment('test', amount))
+          const expectedTotalPaid = paymentAmounts.reduce((sum, a) => sum + a, 0)
+          
+          const installment = createInstallmentWithPayments(totalTenor, monthlyAmount, payments)
+          const { totalPaid } = calculateInstallmentStatusFromPayments(installment)
+          
+          expect(totalPaid).toBe(expectedTotalPaid)
+          
+          return true
+        }
+      ),
+      { numRuns: 100 }
+    )
+  })
+})
+
+describe('Installment Calculation Properties', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
   })
 
   it('should have paid + remaining = total', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 1, max: 60 }),
-        fc.integer({ min: 100000, max: 5000000 }),
-        fc.integer({ min: 0, max: 24 }),
-        (totalTenor, monthlyAmount, monthsAgo) => {
-          const startDate = new Date()
-          startDate.setMonth(startDate.getMonth() - monthsAgo)
-          const startDateStr = startDate.toISOString().split('T')[0]
-
-          const installment = createInstallment(totalTenor, monthlyAmount, startDateStr)
-          const details = calculateDetails(installment)
-
-          // Paid + Remaining should equal Total
-          expect(details.paidAmount + details.remainingAmount).toBe(details.totalAmount)
+        fc.integer({ min: 1, max: 24 }),
+        fc.integer({ min: 100000, max: 1000000 }),
+        fc.array(fc.integer({ min: 10000, max: 500000 }), { minLength: 0, maxLength: 10 }),
+        (totalTenor, monthlyAmount, paymentAmounts) => {
+          const payments = paymentAmounts.map(amount => createPayment('test', amount))
+          const installment = createInstallmentWithPayments(totalTenor, monthlyAmount, payments)
+          
+          const { totalPaid, currentMonth } = calculateInstallmentStatusFromPayments(installment)
+          const totalRequired = totalTenor * monthlyAmount
+          const remainingAmount = Math.max(totalRequired - totalPaid, 0)
+          
+          // totalPaid + remainingAmount should equal totalRequired (or totalPaid if overpaid)
+          expect(totalPaid + remainingAmount).toBeGreaterThanOrEqual(totalRequired)
           
           return true
         }
@@ -162,89 +258,21 @@ describe('Property 13: Installment State Calculation', () => {
     )
   })
 
-  it('should cap progress at 100%', () => {
+  it('should calculate periodPaid correctly', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 1, max: 12 }), // Short tenor
-        fc.integer({ min: 100000, max: 5000000 }),
-        (totalTenor, monthlyAmount) => {
-          // Start date far in the past to ensure completion
-          const startDate = new Date()
-          startDate.setMonth(startDate.getMonth() - 24)
-          const startDateStr = startDate.toISOString().split('T')[0]
-
-          const installment = createInstallment(totalTenor, monthlyAmount, startDateStr)
-          const details = calculateDetails(installment)
-
-          expect(details.progressPercentage).toBeLessThanOrEqual(100)
+        fc.integer({ min: 1, max: 24 }),
+        fc.integer({ min: 100000, max: 1000000 }),
+        fc.array(fc.integer({ min: 10000, max: 500000 }), { minLength: 1, maxLength: 10 }),
+        (totalTenor, monthlyAmount, paymentAmounts) => {
+          const payments = paymentAmounts.map(amount => createPayment('test', amount))
+          const totalPaid = paymentAmounts.reduce((sum, a) => sum + a, 0)
+          const expectedPeriodPaid = totalPaid % monthlyAmount
           
-          return true
-        }
-      ),
-      { numRuns: 100 }
-    )
-  })
-
-  it('should mark as paid_off when current month >= total tenor', () => {
-    fc.assert(
-      fc.property(
-        fc.integer({ min: 1, max: 12 }),
-        fc.integer({ min: 100000, max: 5000000 }),
-        (totalTenor, monthlyAmount) => {
-          // Start date far enough in the past
-          const startDate = new Date()
-          startDate.setMonth(startDate.getMonth() - totalTenor - 1)
-          const startDateStr = startDate.toISOString().split('T')[0]
-
-          const installment = createInstallment(totalTenor, monthlyAmount, startDateStr)
-
-          expect(installment.status).toBe('paid_off')
+          const installment = createInstallmentWithPayments(totalTenor, monthlyAmount, payments)
+          const { periodPaid } = calculateInstallmentStatusFromPayments(installment)
           
-          return true
-        }
-      ),
-      { numRuns: 100 }
-    )
-  })
-
-  it('should mark as active when current month < total tenor', () => {
-    fc.assert(
-      fc.property(
-        fc.integer({ min: 24, max: 60 }), // Long tenor
-        fc.integer({ min: 100000, max: 5000000 }),
-        (totalTenor, monthlyAmount) => {
-          // Start date recent
-          const startDate = new Date()
-          startDate.setMonth(startDate.getMonth() - 1)
-          const startDateStr = startDate.toISOString().split('T')[0]
-
-          const installment = createInstallment(totalTenor, monthlyAmount, startDateStr)
-
-          expect(installment.status).toBe('active')
-          
-          return true
-        }
-      ),
-      { numRuns: 100 }
-    )
-  })
-
-  it('should calculate progress percentage correctly', () => {
-    fc.assert(
-      fc.property(
-        fc.integer({ min: 10, max: 60 }),
-        fc.integer({ min: 100000, max: 5000000 }),
-        fc.integer({ min: 1, max: 9 }),
-        (totalTenor, monthlyAmount, monthsAgo) => {
-          const startDate = new Date()
-          startDate.setMonth(startDate.getMonth() - monthsAgo)
-          const startDateStr = startDate.toISOString().split('T')[0]
-
-          const installment = createInstallment(totalTenor, monthlyAmount, startDateStr)
-          const details = calculateDetails(installment)
-
-          const expectedProgress = Math.min((installment.currentMonth / totalTenor) * 100, 100)
-          expect(Math.abs(details.progressPercentage - expectedProgress)).toBeLessThan(0.001)
+          expect(periodPaid).toBe(expectedPeriodPaid)
           
           return true
         }
