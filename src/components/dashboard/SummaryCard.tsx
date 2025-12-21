@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, Minus, LucideIcon } from 'lucide-react'
+import { TrendingUp, TrendingDown, LucideIcon } from 'lucide-react'
 import { formatCurrency } from '../../utils/formatters'
 
 interface SummaryCardProps {

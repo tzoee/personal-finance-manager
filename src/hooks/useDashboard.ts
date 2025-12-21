@@ -11,8 +11,7 @@ import type {
   CategoryComparison, 
   EmergencyFundStatus, 
   Insight,
-  NetWorthHistory,
-  TrendData 
+  NetWorthHistory
 } from '../types'
 import { 
   calculateExpenseBreakdown, 
@@ -28,7 +27,7 @@ export function useDashboard() {
   const { assets, getNetWorth, getTotalAssets, getTotalLiabilities } = useAssetStore()
   const { settings } = useSettingsStore()
   const { installments } = useInstallmentStore()
-  const { needs } = useMonthlyNeedStore()
+  useMonthlyNeedStore() // Initialize store
 
   // Helper to get category name
   const getCategoryName = (id: string): string => {

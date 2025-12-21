@@ -2,7 +2,7 @@ import { useEffect, useCallback, useMemo } from 'react'
 import { useAssetStore } from '../store/assetStore'
 import type { Asset, AssetInput, NetWorthHistory } from '../types'
 import { getCurrentDate } from '../utils/dateUtils'
-import { format, subMonths, startOfMonth, endOfMonth, parseISO } from 'date-fns'
+import { format, subMonths, endOfMonth, parseISO } from 'date-fns'
 
 export function useAssets() {
   const {
@@ -57,7 +57,6 @@ export function useAssets() {
 
     for (let i = months - 1; i >= 0; i--) {
       const targetDate = subMonths(today, i)
-      const monthStart = startOfMonth(targetDate)
       const monthEnd = endOfMonth(targetDate)
       const monthKey = format(targetDate, 'yyyy-MM')
 

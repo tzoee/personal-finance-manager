@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import * as fc from 'fast-check'
 import type { Asset, AssetInput, AssetValueHistory } from '../../src/types'
 import { generateId } from '../../src/utils/idGenerator'
@@ -67,7 +67,7 @@ const assetInputArb = fc.record({
   isLiability: fc.constant(false),
   initialValue: fc.float({ min: 0, max: 1000000000, noNaN: true }),
   currentValue: fc.float({ min: 0, max: 1000000000, noNaN: true }),
-})
+}) as fc.Arbitrary<AssetInput>
 
 const liabilityInputArb = fc.record({
   name: fc.string({ minLength: 1, maxLength: 50 }).filter(s => s.trim().length > 0),
@@ -75,7 +75,7 @@ const liabilityInputArb = fc.record({
   isLiability: fc.constant(true),
   initialValue: fc.float({ min: 0, max: 1000000000, noNaN: true }),
   currentValue: fc.float({ min: 0, max: 1000000000, noNaN: true }),
-})
+}) as fc.Arbitrary<AssetInput>
 
 const assetOrLiabilityInputArb = fc.oneof(assetInputArb, liabilityInputArb)
 
@@ -206,7 +206,6 @@ describe('Feature: personal-finance-manager', () => {
           fc.float({ min: 0, max: 1000000000, noNaN: true }),
           (input, newValue) => {
             const asset = createAsset(input)
-            const originalHistoryLength = asset.valueHistory.length
             
             // Simulate updating on a different day by modifying the history
             const yesterday = format(subDays(parseISO(getCurrentDate()), 1), 'yyyy-MM-dd')

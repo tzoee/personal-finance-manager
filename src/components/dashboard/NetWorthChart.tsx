@@ -8,7 +8,7 @@ interface NetWorthChartProps {
 
 export default function NetWorthChart({ data }: NetWorthChartProps) {
   const formatMonth = (month: string) => {
-    const [year, m] = month.split('-')
+    const [, m] = month.split('-')
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des']
     return months[parseInt(m) - 1]
   }
