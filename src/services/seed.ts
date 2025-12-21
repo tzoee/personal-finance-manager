@@ -312,6 +312,7 @@ export function generateSeedInstallments(categories: Category[]): Installment[] 
       status: 'active',
       autoGenerateTransaction: true,
       autoCreateTransaction: true,
+      payments: [],
       note: 'Honda Beat 2024',
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
@@ -331,6 +332,7 @@ export function generateSeedInstallments(categories: Category[]): Installment[] 
       status: 'active',
       autoGenerateTransaction: false,
       autoCreateTransaction: false,
+      payments: [],
       note: 'Samsung Galaxy S24',
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
@@ -343,6 +345,7 @@ export function generateSeedInstallments(categories: Category[]): Installment[] 
  */
 export function generateSeedMonthlyNeeds(categories: Category[]): MonthlyNeed[] {
   const now = new Date().toISOString()
+  const currentMonth = new Date().toISOString().slice(0, 7) // YYYY-MM
   const kebutuhanCategory = categories.find(c => c.name === 'Kebutuhan Bulanan')
   
   return [
@@ -353,6 +356,9 @@ export function generateSeedMonthlyNeeds(categories: Category[]): MonthlyNeed[] 
       categoryId: kebutuhanCategory?.id,
       subcategoryId: kebutuhanCategory?.subcategories?.find(s => s.name === 'Listrik')?.id,
       dueDay: 20,
+      recurrencePeriod: 'forever',
+      startMonth: currentMonth,
+      autoGenerateTransaction: false,
       note: 'Token listrik bulanan',
       createdAt: now,
       updatedAt: now,
@@ -364,6 +370,9 @@ export function generateSeedMonthlyNeeds(categories: Category[]): MonthlyNeed[] 
       categoryId: kebutuhanCategory?.id,
       subcategoryId: kebutuhanCategory?.subcategories?.find(s => s.name === 'Air')?.id,
       dueDay: 15,
+      recurrencePeriod: 'forever',
+      startMonth: currentMonth,
+      autoGenerateTransaction: false,
       note: 'Tagihan air',
       createdAt: now,
       updatedAt: now,
@@ -375,6 +384,9 @@ export function generateSeedMonthlyNeeds(categories: Category[]): MonthlyNeed[] 
       categoryId: kebutuhanCategory?.id,
       subcategoryId: kebutuhanCategory?.subcategories?.find(s => s.name === 'Internet')?.id,
       dueDay: 10,
+      recurrencePeriod: 'forever',
+      startMonth: currentMonth,
+      autoGenerateTransaction: false,
       note: 'IndiHome 50Mbps',
       createdAt: now,
       updatedAt: now,
@@ -386,6 +398,9 @@ export function generateSeedMonthlyNeeds(categories: Category[]): MonthlyNeed[] 
       categoryId: kebutuhanCategory?.id,
       subcategoryId: kebutuhanCategory?.subcategories?.find(s => s.name === 'Pulsa')?.id,
       dueDay: 1,
+      recurrencePeriod: 'forever',
+      startMonth: currentMonth,
+      autoGenerateTransaction: false,
       note: 'Paket data bulanan',
       createdAt: now,
       updatedAt: now,

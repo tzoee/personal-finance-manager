@@ -15,6 +15,8 @@ function createMonthlyNeed(budgetAmount: number): MonthlyNeed {
     id: generateId(),
     name: 'Test Need',
     budgetAmount,
+    recurrencePeriod: 'forever',
+    autoGenerateTransaction: false,
     createdAt: new Date().toISOString(),
   }
 }

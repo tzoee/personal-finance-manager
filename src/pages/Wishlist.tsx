@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react'
 import { Heart, Plus, Filter, TrendingUp } from 'lucide-react'
-import { useWishlist, WishlistItemWithProgress } from '../hooks/useWishlist'
+import { useWishlist } from '../hooks/useWishlist'
 import WishlistCard from '../components/wishlist/WishlistCard'
 import WishlistForm from '../components/wishlist/WishlistForm'
 import type { WishlistItem, WishlistInput, Priority } from '../types'

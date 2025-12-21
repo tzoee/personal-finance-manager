@@ -24,6 +24,7 @@ function createInstallmentWithPayments(
   const installment: Installment = {
     id: generateId(),
     name: 'Test Installment',
+    totalAmount: totalTenor * monthlyAmount,
     totalTenor,
     currentMonth: 0,
     monthlyAmount,
@@ -244,7 +245,7 @@ describe('Installment Calculation Properties', () => {
           const payments = paymentAmounts.map(amount => createPayment('test', amount))
           const installment = createInstallmentWithPayments(totalTenor, monthlyAmount, payments)
           
-          const { totalPaid, currentMonth } = calculateInstallmentStatusFromPayments(installment)
+          const { totalPaid } = calculateInstallmentStatusFromPayments(installment)
           const totalRequired = totalTenor * monthlyAmount
           const remainingAmount = Math.max(totalRequired - totalPaid, 0)
           

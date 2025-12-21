@@ -3,7 +3,7 @@
  * Card layout with circular progress indicator and priority badge
  */
 
-import { Heart, Calendar, Edit2, Trash2, CheckCircle, ShoppingCart } from 'lucide-react'
+import { Calendar, Edit2, Trash2, CheckCircle, ShoppingCart } from 'lucide-react'
 import type { WishlistItem, Priority } from '../../types'
 import { formatCurrency, formatDate } from '../../utils/formatters'
 
