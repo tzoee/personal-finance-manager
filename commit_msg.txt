@@ -1,8 +1,8 @@
-feat: redesign Wishlist to single-screen list layout
+fix: make WishlistForm submit button always visible on mobile
 
-- Replace card grid with compact list rows
-- Minimal header with inline progress badge
-- Each item shows: priority dot, name, progress bar, amount, actions
-- Fixed height container with internal scroll
-- Summary footer with totals
-- Fits entire UI in one screen on mobile without scrolling
+- Modal slides up from bottom on mobile (items-end)
+- Sticky footer with Batal/Tambah buttons always visible
+- Compact form layout with side-by-side fields
+- Removed note field to reduce form height
+- Smaller text sizes and reduced spacing
+- max-h-[85vh] ensures modal doesn't cover entire screen
