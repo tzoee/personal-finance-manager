@@ -63,8 +63,8 @@ export default function WishlistForm({ item, onSubmit, onCancel }: WishlistFormP
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 w-full sm:max-w-md sm:rounded-xl sm:m-4 rounded-t-xl max-h-[85vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-xl max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">

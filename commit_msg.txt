@@ -1,8 +1,5 @@
-fix: make WishlistForm submit button always visible on mobile
+fix: center WishlistForm modal on mobile
 
-- Modal slides up from bottom on mobile (items-end)
-- Sticky footer with Batal/Tambah buttons always visible
-- Compact form layout with side-by-side fields
-- Removed note field to reduce form height
-- Smaller text sizes and reduced spacing
-- max-h-[85vh] ensures modal doesn't cover entire screen
+- Changed from items-end to items-center for all screen sizes
+- Form now appears centered on mobile instead of bottom
+- Added p-4 padding around modal for all devices
