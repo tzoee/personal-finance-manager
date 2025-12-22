@@ -4,8 +4,8 @@
  */
 
 import { useState, useEffect } from 'react'
-import { X, Plus, Save } from 'lucide-react'
-import type { Transaction, TransactionInput, Category } from '../../types'
+import { X, Plus, Save, Wallet, CreditCard, Smartphone } from 'lucide-react'
+import type { Transaction, TransactionInput, Category, PaymentMethod } from '../../types'
 import { formatCurrency } from '../../utils/formatters'
 
 interface TransactionFormProps {
@@ -26,6 +26,7 @@ export default function TransactionForm({
   const [amount, setAmount] = useState(transaction?.amount?.toString() || '')
   const [categoryId, setCategoryId] = useState(transaction?.categoryId || '')
   const [subcategoryId, setSubcategoryId] = useState(transaction?.subcategoryId || '')
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(transaction?.paymentMethod || 'cash')
   const [note, setNote] = useState(transaction?.note || '')
   const [errors, setErrors] = useState<string[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -78,6 +79,7 @@ export default function TransactionForm({
         amount: parsedAmount,
         categoryId,
         subcategoryId: subcategoryId || undefined,
+        paymentMethod,
         note: note.trim() || undefined,
       }
 
@@ -208,6 +210,51 @@ export default function TransactionForm({
               </select>
             </div>
           )}
+
+          {/* Payment Method */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Metode Pembayaran
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('cash')}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  paymentMethod === 'cash'
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 ring-2 ring-green-500'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                }`}
+              >
+                <Wallet className="w-4 h-4" />
+                <span>Tunai</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('bank')}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  paymentMethod === 'bank'
+                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 ring-2 ring-blue-500'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                }`}
+              >
+                <CreditCard className="w-4 h-4" />
+                <span>Rekening</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentMethod('e-wallet')}
+                className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  paymentMethod === 'e-wallet'
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 ring-2 ring-purple-500'
+                    : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400'
+                }`}
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>E-Wallet</span>
+              </button>
+            </div>
+          </div>
 
           {/* Note */}
           <div>

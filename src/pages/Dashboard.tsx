@@ -1,9 +1,11 @@
 import { LayoutDashboard, TrendingUp, TrendingDown, ArrowUpDown, PiggyBank } from 'lucide-react'
 import { useDashboard } from '../hooks/useDashboard'
+import { useTransactionStore } from '../store/transactionStore'
+import { useCategoryStore } from '../store/categoryStore'
 import SummaryCard from '../components/dashboard/SummaryCard'
 import CashflowChart from '../components/dashboard/CashflowChart'
 import NetWorthChart from '../components/dashboard/NetWorthChart'
-import ExpenseBreakdownChart from '../components/dashboard/ExpenseBreakdownChart'
+import ExpenseBreakdown from '../components/dashboard/ExpenseBreakdown'
 import TrendChart from '../components/dashboard/TrendChart'
 import EmergencyFundProgress from '../components/dashboard/EmergencyFundProgress'
 import InsightCard from '../components/dashboard/InsightCard'
@@ -14,12 +16,14 @@ export default function Dashboard() {
     currentMonthSummary,
     netWorth,
     monthlyCashflow,
-    expenseBreakdown,
     topExpenseCategories,
     netWorthTrend,
     emergencyFundProgress,
     insights,
   } = useDashboard()
+
+  const { transactions } = useTransactionStore()
+  const { categories } = useCategoryStore()
 
   return (
     <div className="space-y-6">
@@ -75,7 +79,7 @@ export default function Dashboard() {
 
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ExpenseBreakdownChart data={expenseBreakdown} />
+        <ExpenseBreakdown transactions={transactions} categories={categories} />
         <TrendChart data={monthlyCashflow} />
       </div>
 

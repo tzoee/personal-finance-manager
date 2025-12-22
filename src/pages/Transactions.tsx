@@ -89,17 +89,17 @@ export default function Transactions() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <ArrowLeftRight className="w-8 h-8 text-primary-600" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Transaksi</h1>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ArrowLeftRight className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Transaksi</h1>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white 
-                   rounded-lg hover:bg-primary-700 transition-colors"
+          className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-600 text-white 
+                   rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
         >
           <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Tambah</span>
+          <span className="hidden xs:inline">Tambah</span>
         </button>
       </div>
 
