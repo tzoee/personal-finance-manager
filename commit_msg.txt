@@ -1,9 +1,8 @@
-feat: ultra-compact WishlistCard layout for mobile
+feat: redesign Wishlist to single-screen list layout
 
-- Priority shown as colored dot instead of badge
-- Category and target date on same row (side by side)
-- Thinner progress bar (h-1.5)
-- Smaller text sizes (text-[10px])
-- Reduced padding (p-2.5)
-- Shorter button text ("Dibeli" instead of "Tandai Dibeli")
-- Overall card height significantly reduced
+- Replace card grid with compact list rows
+- Minimal header with inline progress badge
+- Each item shows: priority dot, name, progress bar, amount, actions
+- Fixed height container with internal scroll
+- Summary footer with totals
+- Fits entire UI in one screen on mobile without scrolling

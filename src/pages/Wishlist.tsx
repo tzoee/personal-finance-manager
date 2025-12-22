@@ -1,15 +1,19 @@
 /**
- * Wishlist Page - Redesigned
- * Grid layout with stats, filtering, and card-based display
+ * Wishlist Page - Ultra Compact Single Screen Layout
  */
 
 import { useState, useEffect } from 'react'
-import { Heart, Plus, Filter } from 'lucide-react'
+import { Plus, Filter, Edit2, Trash2, Check } from 'lucide-react'
 import { useWishlist } from '../hooks/useWishlist'
-import WishlistCard from '../components/wishlist/WishlistCard'
 import WishlistForm from '../components/wishlist/WishlistForm'
 import type { WishlistItem, WishlistInput, Priority } from '../types'
 import { formatCurrency } from '../utils/formatters'
+
+const priorityDot: Record<Priority, string> = {
+  high: 'bg-red-500',
+  medium: 'bg-amber-500', 
+  low: 'bg-green-500',
+}
 
 export default function Wishlist() {
   const {
@@ -24,10 +28,8 @@ export default function Wishlist() {
     markAsBought,
     categoryFilter,
     priorityFilter,
-    sortBy,
     setCategoryFilter,
     setPriorityFilter,
-    setSortBy,
   } = useWishlist()
 
   const [showForm, setShowForm] = useState(false)
@@ -41,14 +43,12 @@ export default function Wishlist() {
 
   const handleAddItem = async (input: WishlistInput) => {
     const result = await addItem(input)
-    if (result.success) {
-      setShowForm(false)
-    }
+    if (result.success) setShowForm(false)
     return result
   }
 
   const handleEditItem = async (input: WishlistInput) => {
-    if (!editingItem) return { success: false, errors: ['No item selected'] }
+    if (!editingItem) return { success: false, errors: ['No item'] }
     await updateItem(editingItem.id, input)
     setEditingItem(null)
     return { success: true }
@@ -60,162 +60,143 @@ export default function Wishlist() {
     setDeletingItem(null)
   }
 
-  const handleMarkBought = async (item: WishlistItem) => {
-    await markAsBought(item.id)
-  }
-
   return (
-    <div className="space-y-4">
-      {/* Header with Stats - Compact Mobile Layout */}
-      <div className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-3 sm:p-4 text-white">
-        {/* Top Row: Title + Buttons */}
-        <div className="flex items-center justify-between mb-2 sm:mb-3">
-          <div className="flex items-center gap-2">
-            <Heart className="w-5 h-5 sm:w-6 sm:h-6" />
-            <h1 className="text-lg sm:text-xl font-bold">Wishlist</h1>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className={`p-1.5 sm:p-2 rounded-lg transition-colors ${
-                showFilters || categoryFilter || priorityFilter
-                  ? 'bg-white/30'
-                  : 'bg-white/20 hover:bg-white/30'
-              }`}
-            >
-              <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <button
-              onClick={() => setShowForm(true)}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-white text-primary-600 rounded-lg hover:bg-primary-50 transition-colors text-sm font-medium"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Tambah</span>
-            </button>
-          </div>
+    <div className="flex flex-col h-[calc(100vh-120px)] sm:h-auto">
+      {/* Mini Header */}
+      <div className="flex items-center justify-between py-2 px-1 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center gap-2">
+          <h1 className="text-base font-bold text-gray-900 dark:text-gray-100">Wishlist</h1>
+          {stats.totalItems > 0 && (
+            <span className="text-[10px] px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded">
+              {stats.overallProgress.toFixed(0)}%
+            </span>
+          )}
         </div>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={`p-1.5 rounded ${showFilters || categoryFilter || priorityFilter ? 'bg-primary-100 dark:bg-primary-900/30' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+          >
+            <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+          </button>
+          <button
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-1 px-2 py-1 bg-primary-600 text-white rounded text-xs font-medium hover:bg-primary-700"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Tambah
+          </button>
+        </div>
+      </div>
 
-        {/* Stats Row - Compact */}
-        {stats.totalItems > 0 && (
-          <>
-            <p className="text-xs sm:text-sm text-primary-100 mb-2">{stats.motivationalMessage}</p>
-            <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center">
-              <div>
-                <p className="text-[10px] sm:text-xs text-primary-200">Target</p>
-                <p className="text-xs sm:text-sm font-semibold truncate">{formatCurrency(stats.totalTarget).replace('Rp ', '')}</p>
-              </div>
-              <div>
-                <p className="text-[10px] sm:text-xs text-primary-200">Terkumpul</p>
-                <p className="text-xs sm:text-sm font-semibold truncate">{formatCurrency(stats.totalSaved).replace('Rp ', '')}</p>
-              </div>
-              <div>
-                <p className="text-[10px] sm:text-xs text-primary-200">Progress</p>
-                <p className="text-xs sm:text-sm font-semibold">{stats.overallProgress.toFixed(0)}%</p>
-              </div>
-              <div>
-                <p className="text-[10px] sm:text-xs text-primary-200">Tercapai</p>
-                <p className="text-xs sm:text-sm font-semibold">{stats.completedCount}/{stats.totalItems}</p>
-              </div>
-            </div>
-          </>
-        )}
+      {/* Filters */}
+      {showFilters && (
+        <div className="flex gap-2 py-2 px-1 border-b border-gray-200 dark:border-gray-700">
+          <select
+            value={categoryFilter || ''}
+            onChange={(e) => setCategoryFilter(e.target.value || null)}
+            className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">Semua Kategori</option>
+            {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+          </select>
+          <select
+            value={priorityFilter || ''}
+            onChange={(e) => setPriorityFilter((e.target.value || null) as Priority | null)}
+            className="flex-1 px-2 py-1 text-xs border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+          >
+            <option value="">Semua Prioritas</option>
+            <option value="high">Tinggi</option>
+            <option value="medium">Sedang</option>
+            <option value="low">Rendah</option>
+          </select>
+        </div>
+      )}
 
-        {/* Empty state message in header */}
-        {stats.totalItems === 0 && (
-          <p className="text-sm text-primary-100">Mulai tambahkan barang impianmu!</p>
+      {/* List Items - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {categoryFilter || priorityFilter ? 'Tidak ada item' : 'Belum ada wishlist'}
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100 dark:divide-gray-700">
+            {filteredItems.map(item => {
+              const isBought = item.status === 'bought'
+              const isComplete = item.currentSaved >= item.targetPrice
+              return (
+                <div key={item.id} className={`flex items-center gap-2 py-2 px-1 ${isBought ? 'opacity-60' : ''}`}>
+                  {/* Priority dot */}
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${priorityDot[item.priority]}`} />
+                  
+                  {/* Name & Progress */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm truncate ${isBought ? 'line-through text-gray-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                        {item.name}
+                      </span>
+                      {isBought && <Check className="w-3 h-3 text-green-500 shrink-0" />}
+                    </div>
+                    {/* Progress bar */}
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full ${isBought ? 'bg-green-500' : isComplete ? 'bg-primary-500' : item.progress >= 50 ? 'bg-amber-500' : 'bg-gray-400'}`}
+                          style={{ width: `${Math.min(item.progress, 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-[10px] text-gray-500 w-8">{item.progress.toFixed(0)}%</span>
+                    </div>
+                  </div>
+
+                  {/* Amount */}
+                  <div className="text-right shrink-0">
+                    <p className="text-[10px] text-green-600 font-medium">{formatCurrency(item.currentSaved).replace('Rp ', '')}</p>
+                    <p className="text-[10px] text-gray-400">/{formatCurrency(item.targetPrice).replace('Rp ', '')}</p>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center shrink-0">
+                    {!isBought && isComplete && (
+                      <button onClick={() => markAsBought(item.id)} className="p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30 rounded" title="Tandai dibeli">
+                        <Check className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button onClick={() => setEditingItem(item)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                      <Edit2 className="w-3.5 h-3.5 text-gray-400" />
+                    </button>
+                    <button onClick={() => setDeletingItem(item)} className="p-1 hover:bg-red-50 dark:hover:bg-red-900/30 rounded">
+                      <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         )}
       </div>
 
-      {/* Filters - Compact */}
-      {showFilters && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3">
-          <div className="grid grid-cols-3 gap-2">
-            <select
-              value={categoryFilter || ''}
-              onChange={(e) => setCategoryFilter(e.target.value || null)}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            >
-              <option value="">Kategori</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            <select
-              value={priorityFilter || ''}
-              onChange={(e) => setPriorityFilter((e.target.value || null) as Priority | null)}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            >
-              <option value="">Prioritas</option>
-              <option value="high">Tinggi</option>
-              <option value="medium">Sedang</option>
-              <option value="low">Rendah</option>
-            </select>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'priority' | 'progress' | 'date')}
-              className="w-full px-2 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            >
-              <option value="priority">Prioritas</option>
-              <option value="progress">Progress</option>
-              <option value="date">Terbaru</option>
-            </select>
-          </div>
+      {/* Summary Footer */}
+      {stats.totalItems > 0 && (
+        <div className="flex items-center justify-between py-2 px-1 border-t border-gray-200 dark:border-gray-700 text-[10px] text-gray-500 dark:text-gray-400">
+          <span>{stats.completedCount}/{stats.totalItems} tercapai</span>
+          <span>{formatCurrency(stats.totalSaved)} / {formatCurrency(stats.totalTarget)}</span>
         </div>
       )}
 
-      {/* Wishlist Grid */}
-      {filteredItems.length === 0 ? (
-        <div className="text-center py-8">
-          <div className="w-12 h-12 mx-auto mb-3 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
-            <Heart className="w-6 h-6 text-gray-400" />
-          </div>
-          <h3 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-1">
-            {categoryFilter || priorityFilter ? 'Tidak ada item' : 'Belum ada wishlist'}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {categoryFilter || priorityFilter ? 'Coba ubah filter' : 'Tambahkan barang impianmu'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-          {filteredItems.map(item => (
-            <WishlistCard
-              key={item.id}
-              item={item}
-              onEdit={setEditingItem}
-              onDelete={setDeletingItem}
-              onMarkBought={handleMarkBought}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Add Form Modal */}
-      {showForm && (
-        <WishlistForm
-          onSubmit={handleAddItem}
-          onCancel={() => setShowForm(false)}
-        />
-      )}
-
-      {/* Edit Form Modal */}
-      {editingItem && (
-        <WishlistForm
-          item={editingItem}
-          onSubmit={handleEditItem}
-          onCancel={() => setEditingItem(null)}
-        />
-      )}
-
-      {/* Delete Confirmation */}
+      {/* Modals */}
+      {showForm && <WishlistForm onSubmit={handleAddItem} onCancel={() => setShowForm(false)} />}
+      {editingItem && <WishlistForm item={editingItem} onSubmit={handleEditItem} onCancel={() => setEditingItem(null)} />}
+      
       {deletingItem && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Hapus Wishlist</h3>
-            <p className="text-gray-700 dark:text-gray-300 mb-6">Hapus "{deletingItem.name}" dari wishlist?</p>
-            <div className="flex gap-3">
-              <button onClick={() => setDeletingItem(null)} className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">Batal</button>
-              <button onClick={handleDeleteItem} className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Hapus</button>
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-sm p-4">
+            <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">Hapus "{deletingItem.name}"?</p>
+            <div className="flex gap-2">
+              <button onClick={() => setDeletingItem(null)} className="flex-1 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700">Batal</button>
+              <button onClick={handleDeleteItem} className="flex-1 px-3 py-1.5 text-sm bg-red-600 text-white rounded hover:bg-red-700">Hapus</button>
             </div>
           </div>
         </div>
