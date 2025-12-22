@@ -1,8 +1,9 @@
-feat: make WishlistCard more compact for mobile
+feat: ultra-compact WishlistCard layout for mobile
 
-- Replace circular progress with horizontal progress bar
-- Reduce padding and spacing throughout card
-- Use smaller text sizes (text-xs, text-[10px])
-- Compact amount display in single row
-- Smaller action buttons and icons
-- Remove target date display for cleaner layout
+- Priority shown as colored dot instead of badge
+- Category and target date on same row (side by side)
+- Thinner progress bar (h-1.5)
+- Smaller text sizes (text-[10px])
+- Reduced padding (p-2.5)
+- Shorter button text ("Dibeli" instead of "Tandai Dibeli")
+- Overall card height significantly reduced
