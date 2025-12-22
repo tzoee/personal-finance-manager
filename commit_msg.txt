@@ -1,0 +1,8 @@
+feat: make WishlistCard more compact for mobile
+
+- Replace circular progress with horizontal progress bar
+- Reduce padding and spacing throughout card
+- Use smaller text sizes (text-xs, text-[10px])
+- Compact amount display in single row
+- Smaller action buttons and icons
+- Remove target date display for cleaner layout
