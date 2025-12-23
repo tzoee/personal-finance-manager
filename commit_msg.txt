@@ -1,9 +1,4 @@
-feat: implement Supabase email/password authentication
+fix: hardcode Supabase credentials for Netlify free tier
 
-- Add ProtectedRoute component for route protection
-- Add UserMenu component with logout functionality
-- Update Header to show user menu when authenticated
-- Update App.tsx with auth routes (/login, /register)
-- Wrap existing routes with ProtectedRoute
-- Initialize auth on app load
-- Fix unused parameter in authStore
+Netlify free tier doesn't support env variables, so hardcoding
+the public anon key directly in the code (safe to expose)
