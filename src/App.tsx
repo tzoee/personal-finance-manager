@@ -59,16 +59,16 @@ function App() {
   const { darkMode, initialized: settingsInit, initialize: initSettings } = useSettingsStore()
   const { categories, initialized: categoriesInit, initialize: initCategories } = useCategoryStore()
   const { transactions, initialized: transactionsInit, initialize: initTransactions } = useTransactionStore()
-  const { initialized: wishlistInit, initialize: initWishlist } = useWishlistStore()
-  const { initialized: installmentsInit, initialize: initInstallments } = useInstallmentStore()
-  const { initialized: monthlyNeedsInit, initialize: initMonthlyNeeds } = useMonthlyNeedStore()
-  const { initialized: assetsInit, initialize: initAssets } = useAssetStore()
+  const { items: wishlist, initialized: wishlistInit, initialize: initWishlist } = useWishlistStore()
+  const { installments, initialized: installmentsInit, initialize: initInstallments } = useInstallmentStore()
+  const { needs: monthlyNeeds, initialized: monthlyNeedsInit, initialize: initMonthlyNeeds } = useMonthlyNeedStore()
+  const { assets, initialized: assetsInit, initialize: initAssets } = useAssetStore()
   const { initialized: savingsInit, initialize: initSavings } = useSavingsStore()
-  const { user, initialize: initAuth } = useAuthStore()
-  const { loadFromCloud, saveToCloud, initialize: initSync, autoSyncEnabled } = useSyncStore()
+  const { user, initialized: authInitialized, initialize: initAuth } = useAuthStore()
+  const { loadFromCloud, saveToCloud, initialize: initSync, autoSyncEnabled, isSyncing } = useSyncStore()
   const [loading, setLoading] = useState(true)
   const [showSeedDialog, setShowSeedDialog] = useState(false)
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'saving'>('idle')
+  const [cloudSyncDone, setCloudSyncDone] = useState(false)
 
   // Initialize all stores
   const initializeStores = useCallback(async () => {
@@ -84,53 +84,65 @@ function App() {
     ])
   }, [settingsInit, categoriesInit, transactionsInit, wishlistInit, installmentsInit, monthlyNeedsInit, assetsInit, savingsInit])
 
+  // Initial auth setup
   useEffect(() => {
     const init = async () => {
-      // Initialize auth first
       await initAuth()
       initSync()
-      setLoading(false)
     }
     init()
   }, [])
 
-  // Load from cloud when user logs in
+  // Load from cloud when user is authenticated
   useEffect(() => {
     const syncOnLogin = async () => {
-      if (user && !loading) {
-        setSyncStatus('loading')
-        const result = await loadFromCloud()
+      if (!authInitialized) return
+      
+      if (user && !cloudSyncDone) {
+        // Check if we already synced this session
+        const sessionSynced = sessionStorage.getItem('pfm_session_synced')
         
-        if (result.success && result.hasData) {
-          // Reload stores with cloud data
-          window.location.reload()
-        } else {
-          // No cloud data, initialize local stores
-          await initializeStores()
+        if (!sessionSynced) {
+          const result = await loadFromCloud()
+          
+          if (result.success && result.hasData) {
+            // Mark as synced and reload to get fresh data
+            sessionStorage.setItem('pfm_session_synced', 'true')
+            window.location.reload()
+            return
+          }
         }
-        setSyncStatus('idle')
-      } else if (!user && !loading) {
+        
+        // Initialize local stores
+        await initializeStores()
+        setCloudSyncDone(true)
+        setLoading(false)
+      } else if (!user && authInitialized) {
         // Not logged in, just initialize stores
         await initializeStores()
+        setLoading(false)
       }
     }
     syncOnLogin()
-  }, [user, loading])
+  }, [user, authInitialized, cloudSyncDone])
 
   // Auto-save to cloud when data changes (debounced)
   useEffect(() => {
-    if (!user || !autoSyncEnabled || syncStatus !== 'idle') return
+    if (!user || !autoSyncEnabled || !cloudSyncDone || isSyncing) return
+
+    // Only save if we have actual data
+    const hasData = transactions.length > 0 || categories.length > 0 || 
+                    wishlist.length > 0 || installments.length > 0 || 
+                    monthlyNeeds.length > 0 || assets.length > 0
+
+    if (!hasData) return
 
     const saveTimeout = setTimeout(async () => {
-      if (transactions.length > 0 || categories.length > 0) {
-        setSyncStatus('saving')
-        await saveToCloud()
-        setSyncStatus('idle')
-      }
-    }, 5000) // Save 5 seconds after last change
+      await saveToCloud()
+    }, 3000) // Save 3 seconds after last change
 
     return () => clearTimeout(saveTimeout)
-  }, [transactions, categories, user, autoSyncEnabled])
+  }, [transactions, categories, wishlist, installments, monthlyNeeds, assets, user, autoSyncEnabled, cloudSyncDone, isSyncing])
 
   // Check if this is first time user (no data)
   useEffect(() => {
@@ -161,13 +173,13 @@ function App() {
     setShowSeedDialog(false)
   }
 
-  if (loading || syncStatus === 'loading') {
+  if (loading || (user && !cloudSyncDone)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
           <p className="mt-4 text-gray-600 dark:text-gray-400">
-            {syncStatus === 'loading' ? 'Memuat data dari cloud...' : 'Memuat aplikasi...'}
+            {user ? 'Memuat data dari cloud...' : 'Memuat aplikasi...'}
           </p>
         </div>
       </div>

@@ -1,9 +1,6 @@
-feat: implement cloud sync with Supabase
+fix: improve cloud sync reliability
 
-- Add cloudSync service for saving/loading data to Supabase
-- Add syncStore for managing sync state
-- Auto-sync data to cloud when changes occur
-- Load data from cloud on login
-- Add sync indicator in header
-- Add manual sync controls in Settings page
-- Data now persists per user across devices
+- Use sessionStorage to track sync per session
+- Auto-save triggers on all data changes (wishlist, installments, etc)
+- Better loading state management
+- Reduce auto-save delay to 3 seconds
