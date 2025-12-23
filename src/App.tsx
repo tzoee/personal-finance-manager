@@ -99,26 +99,31 @@ function App() {
       if (!authInitialized) return
       
       if (user && !cloudSyncDone) {
-        // Check if we already synced this session
-        const sessionSynced = sessionStorage.getItem('pfm_session_synced')
+        // Always try to load from cloud on login (not just first time)
+        // This ensures data is synced across devices
+        const result = await loadFromCloud()
         
-        if (!sessionSynced) {
-          const result = await loadFromCloud()
-          
-          if (result.success && result.hasData) {
-            // Mark as synced and reload to get fresh data
-            sessionStorage.setItem('pfm_session_synced', 'true')
+        if (result.success && result.hasData) {
+          // Data was loaded from cloud - reload to pick up fresh data from IndexedDB
+          // Use a flag to prevent infinite reload loop
+          const justSynced = sessionStorage.getItem('pfm_just_synced')
+          if (!justSynced) {
+            sessionStorage.setItem('pfm_just_synced', 'true')
             window.location.reload()
             return
           }
+          // Clear the flag after reload
+          sessionStorage.removeItem('pfm_just_synced')
         }
         
-        // Initialize local stores
+        // Initialize local stores (will read from IndexedDB which now has cloud data)
         await initializeStores()
         setCloudSyncDone(true)
         setLoading(false)
       } else if (!user && authInitialized) {
         // Not logged in, just initialize stores
+        // Also clear sync flag when logged out
+        sessionStorage.removeItem('pfm_just_synced')
         await initializeStores()
         setLoading(false)
       }

@@ -1,5 +1,6 @@
-Fix cloud sync UI - wire up sync message feedback and handlers
+Fix cloud sync - always load from cloud on login for cross-device sync
 
-- Update Settings.tsx to use handleSaveToCloud and handleLoadFromCloud
-- Add syncMessage display for success/error feedback
-- Buttons now show proper feedback after sync operations
+- Remove session-based sync check that was preventing data sync
+- Use pfm_just_synced flag to prevent infinite reload loop
+- Clear sync flag on logout
+- Data now properly syncs when logging in from different devices
