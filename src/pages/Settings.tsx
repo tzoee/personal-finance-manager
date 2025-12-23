@@ -28,6 +28,7 @@ export default function Settings() {
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [resetConfirmText, setResetConfirmText] = useState('')
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [monthlyLivingCost, setMonthlyLivingCost] = useState(settings.monthlyLivingCost.toString())
   const [emergencyMultiplier, setEmergencyMultiplier] = useState(settings.emergencyFundMultiplier.toString())
   
@@ -45,6 +46,31 @@ export default function Settings() {
   }, [settings])
 
   const storageInfo = getStorageInfo()
+
+  const handleSaveToCloud = async () => {
+    setSyncMessage(null)
+    const success = await saveToCloud()
+    if (success) {
+      setSyncMessage({ type: 'success', message: 'Data berhasil disimpan ke cloud!' })
+    } else {
+      setSyncMessage({ type: 'error', message: syncError || 'Gagal menyimpan ke cloud' })
+    }
+  }
+
+  const handleLoadFromCloud = async () => {
+    setSyncMessage(null)
+    const result = await loadFromCloud()
+    if (result.success) {
+      if (result.hasData) {
+        setSyncMessage({ type: 'success', message: 'Data berhasil dimuat dari cloud! Halaman akan di-refresh...' })
+        setTimeout(() => window.location.reload(), 1500)
+      } else {
+        setSyncMessage({ type: 'error', message: 'Tidak ada data di cloud untuk akun ini' })
+      }
+    } else {
+      setSyncMessage({ type: 'error', message: syncError || 'Gagal memuat dari cloud' })
+    }
+  }
 
   const handleExport = () => {
     downloadExport()
@@ -175,10 +201,21 @@ export default function Settings() {
             </button>
           </div>
 
+          {/* Sync Message */}
+          {syncMessage && (
+            <div className={`p-3 rounded-lg text-sm ${
+              syncMessage.type === 'success' 
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+            }`}>
+              {syncMessage.message}
+            </div>
+          )}
+
           {/* Manual Sync Buttons */}
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={() => saveToCloud()}
+              onClick={handleSaveToCloud}
               disabled={isSyncing}
               className="btn btn-primary flex items-center justify-center gap-2"
             >
@@ -186,12 +223,7 @@ export default function Settings() {
               Simpan ke Cloud
             </button>
             <button
-              onClick={async () => {
-                const result = await loadFromCloud()
-                if (result.success && result.hasData) {
-                  window.location.reload()
-                }
-              }}
+              onClick={handleLoadFromCloud}
               disabled={isSyncing}
               className="btn btn-secondary flex items-center justify-center gap-2"
             >

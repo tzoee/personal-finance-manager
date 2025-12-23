@@ -1,3 +1,5 @@
-fix: remove unused get parameter in syncStore
+Fix cloud sync UI - wire up sync message feedback and handlers
 
-Fix TypeScript TS6133 error that was causing Netlify build to fail
+- Update Settings.tsx to use handleSaveToCloud and handleLoadFromCloud
+- Add syncMessage display for success/error feedback
+- Buttons now show proper feedback after sync operations
