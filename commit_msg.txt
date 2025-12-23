@@ -1,6 +1,3 @@
-Fix cloud sync - always load from cloud on login for cross-device sync
+Add Vercel config for SPA routing
 
-- Remove session-based sync check that was preventing data sync
-- Use pfm_just_synced flag to prevent infinite reload loop
-- Clear sync flag on logout
-- Data now properly syncs when logging in from different devices
+Fix 404 error on page refresh/direct navigation
