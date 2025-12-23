@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
@@ -69,6 +69,23 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [showSeedDialog, setShowSeedDialog] = useState(false)
   const [cloudSyncDone, setCloudSyncDone] = useState(false)
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const lastDataHashRef = useRef<string>('')
+
+  // Create a simple hash of data to detect changes
+  const getDataHash = useCallback(() => {
+    return JSON.stringify({
+      t: transactions.length,
+      c: categories.length,
+      w: wishlist.length,
+      i: installments.length,
+      m: monthlyNeeds.length,
+      a: assets.length,
+      // Include first item IDs to detect actual changes
+      tid: transactions[0]?.id || '',
+      cid: categories[0]?.id || '',
+    })
+  }, [transactions, categories, wishlist, installments, monthlyNeeds, assets])
 
   // Initialize all stores
   const initializeStores = useCallback(async () => {
@@ -139,19 +156,35 @@ function App() {
   useEffect(() => {
     if (!user || !autoSyncEnabled || !cloudSyncDone || isSyncing) return
 
-    // Only save if we have actual data
+    const currentHash = getDataHash()
+    
+    // Skip if data hasn't actually changed
+    if (currentHash === lastDataHashRef.current) return
+    
+    // Skip initial load (empty data)
     const hasData = transactions.length > 0 || categories.length > 0 || 
                     wishlist.length > 0 || installments.length > 0 || 
                     monthlyNeeds.length > 0 || assets.length > 0
-
     if (!hasData) return
 
-    const saveTimeout = setTimeout(async () => {
-      await saveToCloud()
-    }, 3000) // Save 3 seconds after last change
+    // Clear previous timeout
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current)
+    }
 
-    return () => clearTimeout(saveTimeout)
-  }, [transactions, categories, wishlist, installments, monthlyNeeds, assets, user, autoSyncEnabled, cloudSyncDone, isSyncing])
+    // Save after 2 seconds of no changes
+    saveTimeoutRef.current = setTimeout(async () => {
+      console.log('[AutoSync] Data changed, saving to cloud...')
+      lastDataHashRef.current = currentHash
+      await saveToCloud()
+    }, 2000)
+
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current)
+      }
+    }
+  }, [transactions, categories, wishlist, installments, monthlyNeeds, assets, user, autoSyncEnabled, cloudSyncDone, isSyncing, getDataHash, saveToCloud])
 
   // Check if this is first time user (no data)
   useEffect(() => {

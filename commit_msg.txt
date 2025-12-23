@@ -1,4 +1,6 @@
-Fix mobile navigation and add sync debugging
+Improve auto-sync with better change detection
 
-- Add "More" menu for mobile to access Cicilan, Kebutuhan, Aset, Settings
-- Add console logging to cloud sync for debugging sync issues
+- Add data hash to detect actual changes
+- Reduce debounce to 2 seconds for faster sync
+- Add console logging for auto-sync events
+- Prevent duplicate saves when data hasn't changed
