@@ -1,5 +1,9 @@
-fix: center WishlistForm modal on mobile
+feat: implement Supabase email/password authentication
 
-- Changed from items-end to items-center for all screen sizes
-- Form now appears centered on mobile instead of bottom
-- Added p-4 padding around modal for all devices
+- Add ProtectedRoute component for route protection
+- Add UserMenu component with logout functionality
+- Update Header to show user menu when authenticated
+- Update App.tsx with auth routes (/login, /register)
+- Wrap existing routes with ProtectedRoute
+- Initialize auth on app load
+- Fix unused parameter in authStore

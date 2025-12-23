@@ -10,6 +10,9 @@ import Installments from './pages/Installments'
 import MonthlyNeeds from './pages/MonthlyNeeds'
 import Assets from './pages/Assets'
 import Settings from './pages/Settings'
+import Login from './pages/auth/Login'
+import Register from './pages/auth/Register'
+import ProtectedRoute from './components/auth/ProtectedRoute'
 import { useSettingsStore } from './store/settingsStore'
 import { useCategoryStore } from './store/categoryStore'
 import { useTransactionStore } from './store/transactionStore'
@@ -18,6 +21,7 @@ import { useInstallmentStore } from './store/installmentStore'
 import { useMonthlyNeedStore } from './store/monthlyNeedStore'
 import { useAssetStore } from './store/assetStore'
 import { useSavingsStore } from './store/savingsStore'
+import { useAuthStore } from './store/authStore'
 import { applySeedData } from './services/seed'
 
 function SeedDataDialog({ onAccept, onDecline }: { onAccept: () => void; onDecline: () => void }) {
@@ -59,11 +63,15 @@ function App() {
   const { initialized: monthlyNeedsInit, initialize: initMonthlyNeeds } = useMonthlyNeedStore()
   const { initialized: assetsInit, initialize: initAssets } = useAssetStore()
   const { initialized: savingsInit, initialize: initSavings } = useSavingsStore()
+  const { initialize: initAuth } = useAuthStore()
   const [loading, setLoading] = useState(true)
   const [showSeedDialog, setShowSeedDialog] = useState(false)
 
   useEffect(() => {
     const init = async () => {
+      // Initialize auth first
+      await initAuth()
+      
       await Promise.all([
         !settingsInit && initSettings(),
         !categoriesInit && initCategories(),
@@ -121,20 +129,31 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/transactions" element={<Transactions />} />
-          <Route path="/categories" element={<Categories />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/savings" element={<Savings />} />
-          <Route path="/installments" element={<Installments />} />
-          <Route path="/monthly-needs" element={<MonthlyNeeds />} />
-          <Route path="/assets" element={<Assets />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        {/* Auth Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        
+        {/* Protected Routes */}
+        <Route path="/*" element={
+          <ProtectedRoute>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/transactions" element={<Transactions />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/wishlist" element={<Wishlist />} />
+                <Route path="/savings" element={<Savings />} />
+                <Route path="/installments" element={<Installments />} />
+                <Route path="/monthly-needs" element={<MonthlyNeeds />} />
+                <Route path="/assets" element={<Assets />} />
+                <Route path="/settings" element={<Settings />} />
+              </Routes>
+            </Layout>
+          </ProtectedRoute>
+        } />
+      </Routes>
       {showSeedDialog && (
         <SeedDataDialog onAccept={handleAcceptSeed} onDecline={handleDeclineSeed} />
       )}
