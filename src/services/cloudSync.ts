@@ -23,11 +23,21 @@ export const cloudSyncService = {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
+        console.log('[CloudSync] Save failed: User not authenticated')
         return { success: false, error: 'User not authenticated' }
       }
 
       // Export all local data
       const appData = await storageService.exportAllData()
+      console.log('[CloudSync] Saving data for user:', user.id)
+      console.log('[CloudSync] Data summary:', {
+        transactions: appData.transactions?.length || 0,
+        categories: appData.categories?.length || 0,
+        wishlist: appData.wishlist?.length || 0,
+        installments: appData.installments?.length || 0,
+        monthlyNeeds: appData.monthlyNeeds?.length || 0,
+        assets: appData.assets?.length || 0,
+      })
 
       // Upsert to Supabase
       const { error } = await supabase
@@ -41,17 +51,18 @@ export const cloudSyncService = {
         })
 
       if (error) {
-        console.error('Cloud save error:', error)
+        console.error('[CloudSync] Save error:', error)
         return { success: false, error: error.message }
       }
 
       // Save last sync time to localStorage
       localStorage.setItem('pfm_last_synced', new Date().toISOString())
+      console.log('[CloudSync] Save successful')
       
       return { success: true }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error'
-      console.error('Cloud save error:', message)
+      console.error('[CloudSync] Save error:', message)
       return { success: false, error: message }
     }
   },
@@ -63,8 +74,11 @@ export const cloudSyncService = {
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
+        console.log('[CloudSync] Load failed: User not authenticated')
         return { success: false, error: 'User not authenticated' }
       }
+
+      console.log('[CloudSync] Loading data for user:', user.id)
 
       // Fetch from Supabase
       const { data, error } = await supabase
@@ -76,26 +90,39 @@ export const cloudSyncService = {
       if (error) {
         if (error.code === 'PGRST116') {
           // No data found - this is okay for new users
+          console.log('[CloudSync] No cloud data found for user')
           return { success: true, hasData: false }
         }
-        console.error('Cloud load error:', error)
+        console.error('[CloudSync] Load error:', error)
         return { success: false, error: error.message }
       }
 
       if (!data?.data) {
+        console.log('[CloudSync] Cloud data is empty')
         return { success: true, hasData: false }
       }
 
+      const cloudData = data.data as AppData
+      console.log('[CloudSync] Cloud data summary:', {
+        transactions: cloudData.transactions?.length || 0,
+        categories: cloudData.categories?.length || 0,
+        wishlist: cloudData.wishlist?.length || 0,
+        installments: cloudData.installments?.length || 0,
+        monthlyNeeds: cloudData.monthlyNeeds?.length || 0,
+        assets: cloudData.assets?.length || 0,
+      })
+
       // Import data to local storage (replace mode)
-      await storageService.importData(data.data as AppData, 'replace')
+      await storageService.importData(cloudData, 'replace')
       
       // Save last sync time
       localStorage.setItem('pfm_last_synced', data.updated_at || new Date().toISOString())
+      console.log('[CloudSync] Load successful')
 
       return { success: true, hasData: true }
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error'
-      console.error('Cloud load error:', message)
+      console.error('[CloudSync] Load error:', message)
       return { success: false, error: message }
     }
   },

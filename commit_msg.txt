@@ -1,3 +1,4 @@
-Fix infinite reload loop on cloud sync
+Fix mobile navigation and add sync debugging
 
-Check pfm_just_synced flag BEFORE loading from cloud to prevent loop
+- Add "More" menu for mobile to access Cicilan, Kebutuhan, Aset, Settings
+- Add console logging to cloud sync for debugging sync issues
