@@ -9,14 +9,19 @@ import {
   AlertTriangle,
   Shield,
   Database,
-  HardDrive
+  HardDrive,
+  Cloud,
+  RefreshCw,
+  Loader2
 } from 'lucide-react'
 import { useSettingsStore } from '../store/settingsStore'
+import { useSyncStore } from '../store/syncStore'
 import { useStorage } from '../hooks/useStorage'
 import { formatCurrency } from '../utils/formatters'
 
 export default function Settings() {
   const { settings, darkMode, setDarkMode, updateSettings, initialize, initialized } = useSettingsStore()
+  const { isSyncing, lastSynced, error: syncError, saveToCloud, loadFromCloud, autoSyncEnabled, setAutoSync } = useSyncStore()
   const { downloadExport, importData, resetData, getStorageInfo } = useStorage()
   
   const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge')
@@ -116,6 +121,83 @@ export default function Settings() {
             <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
               Data Anda tersimpan di browser ini saja. Lakukan export secara berkala untuk backup.
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Cloud Sync */}
+      <div className="card p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <Cloud className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100">Sinkronisasi Cloud</h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Sync Status */}
+          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Status</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {lastSynced 
+                  ? `Terakhir sync: ${new Date(lastSynced).toLocaleString('id-ID')}`
+                  : 'Belum pernah sync'
+                }
+              </p>
+            </div>
+            {isSyncing && <Loader2 className="w-4 h-4 animate-spin text-primary-600" />}
+          </div>
+
+          {syncError && (
+            <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+              <p className="text-sm text-red-600 dark:text-red-400">{syncError}</p>
+            </div>
+          )}
+
+          {/* Auto Sync Toggle */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Auto Sync</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Simpan otomatis ke cloud saat ada perubahan
+              </p>
+            </div>
+            <button
+              onClick={() => setAutoSync(!autoSyncEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                autoSyncEnabled ? 'bg-primary-600' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  autoSyncEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Manual Sync Buttons */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => saveToCloud()}
+              disabled={isSyncing}
+              className="btn btn-primary flex items-center justify-center gap-2"
+            >
+              {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              Simpan ke Cloud
+            </button>
+            <button
+              onClick={async () => {
+                const result = await loadFromCloud()
+                if (result.success && result.hasData) {
+                  window.location.reload()
+                }
+              }}
+              disabled={isSyncing}
+              className="btn btn-secondary flex items-center justify-center gap-2"
+            >
+              {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              Muat dari Cloud
+            </button>
           </div>
         </div>
       </div>

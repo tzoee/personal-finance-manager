@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
@@ -22,6 +22,7 @@ import { useMonthlyNeedStore } from './store/monthlyNeedStore'
 import { useAssetStore } from './store/assetStore'
 import { useSavingsStore } from './store/savingsStore'
 import { useAuthStore } from './store/authStore'
+import { useSyncStore } from './store/syncStore'
 import { applySeedData } from './services/seed'
 
 function SeedDataDialog({ onAccept, onDecline }: { onAccept: () => void; onDecline: () => void }) {
@@ -63,29 +64,73 @@ function App() {
   const { initialized: monthlyNeedsInit, initialize: initMonthlyNeeds } = useMonthlyNeedStore()
   const { initialized: assetsInit, initialize: initAssets } = useAssetStore()
   const { initialized: savingsInit, initialize: initSavings } = useSavingsStore()
-  const { initialize: initAuth } = useAuthStore()
+  const { user, initialize: initAuth } = useAuthStore()
+  const { loadFromCloud, saveToCloud, initialize: initSync, autoSyncEnabled } = useSyncStore()
   const [loading, setLoading] = useState(true)
   const [showSeedDialog, setShowSeedDialog] = useState(false)
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'loading' | 'saving'>('idle')
+
+  // Initialize all stores
+  const initializeStores = useCallback(async () => {
+    await Promise.all([
+      !settingsInit && initSettings(),
+      !categoriesInit && initCategories(),
+      !transactionsInit && initTransactions(),
+      !wishlistInit && initWishlist(),
+      !installmentsInit && initInstallments(),
+      !monthlyNeedsInit && initMonthlyNeeds(),
+      !assetsInit && initAssets(),
+      !savingsInit && initSavings(),
+    ])
+  }, [settingsInit, categoriesInit, transactionsInit, wishlistInit, installmentsInit, monthlyNeedsInit, assetsInit, savingsInit])
 
   useEffect(() => {
     const init = async () => {
       // Initialize auth first
       await initAuth()
-      
-      await Promise.all([
-        !settingsInit && initSettings(),
-        !categoriesInit && initCategories(),
-        !transactionsInit && initTransactions(),
-        !wishlistInit && initWishlist(),
-        !installmentsInit && initInstallments(),
-        !monthlyNeedsInit && initMonthlyNeeds(),
-        !assetsInit && initAssets(),
-        !savingsInit && initSavings(),
-      ])
+      initSync()
       setLoading(false)
     }
     init()
   }, [])
+
+  // Load from cloud when user logs in
+  useEffect(() => {
+    const syncOnLogin = async () => {
+      if (user && !loading) {
+        setSyncStatus('loading')
+        const result = await loadFromCloud()
+        
+        if (result.success && result.hasData) {
+          // Reload stores with cloud data
+          window.location.reload()
+        } else {
+          // No cloud data, initialize local stores
+          await initializeStores()
+        }
+        setSyncStatus('idle')
+      } else if (!user && !loading) {
+        // Not logged in, just initialize stores
+        await initializeStores()
+      }
+    }
+    syncOnLogin()
+  }, [user, loading])
+
+  // Auto-save to cloud when data changes (debounced)
+  useEffect(() => {
+    if (!user || !autoSyncEnabled || syncStatus !== 'idle') return
+
+    const saveTimeout = setTimeout(async () => {
+      if (transactions.length > 0 || categories.length > 0) {
+        setSyncStatus('saving')
+        await saveToCloud()
+        setSyncStatus('idle')
+      }
+    }, 5000) // Save 5 seconds after last change
+
+    return () => clearTimeout(saveTimeout)
+  }, [transactions, categories, user, autoSyncEnabled])
 
   // Check if this is first time user (no data)
   useEffect(() => {
@@ -116,12 +161,14 @@ function App() {
     setShowSeedDialog(false)
   }
 
-  if (loading) {
+  if (loading || syncStatus === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Memuat aplikasi...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            {syncStatus === 'loading' ? 'Memuat data dari cloud...' : 'Memuat aplikasi...'}
+          </p>
         </div>
       </div>
     )

@@ -1,4 +1,9 @@
-fix: hardcode Supabase credentials for Netlify free tier
+feat: implement cloud sync with Supabase
 
-Netlify free tier doesn't support env variables, so hardcoding
-the public anon key directly in the code (safe to expose)
+- Add cloudSync service for saving/loading data to Supabase
+- Add syncStore for managing sync state
+- Auto-sync data to cloud when changes occur
+- Load data from cloud on login
+- Add sync indicator in header
+- Add manual sync controls in Settings page
+- Data now persists per user across devices
