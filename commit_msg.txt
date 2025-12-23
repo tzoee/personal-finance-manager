@@ -1,3 +1,3 @@
-Add Vercel config for SPA routing
+Fix infinite reload loop on cloud sync
 
-Fix 404 error on page refresh/direct navigation
+Check pfm_just_synced flag BEFORE loading from cloud to prevent loop
