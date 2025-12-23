@@ -20,7 +20,7 @@ interface SyncActions {
   initialize: () => void
 }
 
-export const useSyncStore = create<SyncState & SyncActions>((set, get) => ({
+export const useSyncStore = create<SyncState & SyncActions>((set) => ({
   isSyncing: false,
   lastSynced: null,
   error: null,

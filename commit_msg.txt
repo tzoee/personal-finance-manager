@@ -1,6 +1,3 @@
-fix: improve cloud sync reliability
+fix: remove unused get parameter in syncStore
 
-- Use sessionStorage to track sync per session
-- Auto-save triggers on all data changes (wishlist, installments, etc)
-- Better loading state management
-- Reduce auto-save delay to 3 seconds
+Fix TypeScript TS6133 error that was causing Netlify build to fail
