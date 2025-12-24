@@ -1,12 +1,12 @@
-import { LayoutDashboard, TrendingUp, TrendingDown, ArrowUpDown, PiggyBank } from 'lucide-react'
+import { LayoutDashboard } from 'lucide-react'
 import { useDashboard } from '../hooks/useDashboard'
-import { useTransactionStore } from '../store/transactionStore'
-import { useCategoryStore } from '../store/categoryStore'
-import SummaryCard from '../components/dashboard/SummaryCard'
-import CashflowChart from '../components/dashboard/CashflowChart'
-import NetWorthChart from '../components/dashboard/NetWorthChart'
-import ExpenseBreakdown from '../components/dashboard/ExpenseBreakdown'
-import TrendChart from '../components/dashboard/TrendChart'
+import { useInstallmentStore } from '../store/installmentStore'
+import { useWishlistStore } from '../store/wishlistStore'
+import { useSavingsStore } from '../store/savingsStore'
+import QuickStats from '../components/dashboard/QuickStats'
+import MiniCashflowChart from '../components/dashboard/MiniCashflowChart'
+import FinancialOverview from '../components/dashboard/FinancialOverview'
+import ActiveCommitments from '../components/dashboard/ActiveCommitments'
 import EmergencyFundProgress from '../components/dashboard/EmergencyFundProgress'
 import InsightCard from '../components/dashboard/InsightCard'
 import TopCategories from '../components/dashboard/TopCategories'
@@ -16,77 +16,88 @@ export default function Dashboard() {
     currentMonthSummary,
     netWorth,
     monthlyCashflow,
+    expenseBreakdown,
     topExpenseCategories,
-    netWorthTrend,
     emergencyFundProgress,
     insights,
   } = useDashboard()
 
-  const { transactions } = useTransactionStore()
-  const { categories } = useCategoryStore()
+  const { installments } = useInstallmentStore()
+  const { items: wishlist } = useWishlistStore()
+  const { savings } = useSavingsStore()
+
+  // Calculate stats for QuickStats
+  const activeInstallments = installments.filter(i => i.status === 'active')
+  const totalInstallmentMonthly = activeInstallments.reduce((sum, i) => sum + i.monthlyAmount, 0)
+  
+  const totalSaved = savings.reduce((sum, s) => 
+    sum + s.deposits.reduce((dSum, d) => dSum + d.amount, 0), 0
+  )
+  
+  const activeWishlist = wishlist.filter(w => w.status !== 'bought')
+  const wishlistProgress = activeWishlist.length > 0
+    ? activeWishlist.reduce((sum, w) => {
+        const progress = w.targetPrice > 0 ? (w.currentSaved / w.targetPrice) * 100 : 0
+        return sum + progress
+      }, 0) / activeWishlist.length
+    : 0
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <LayoutDashboard className="w-8 h-8 text-primary-600" />
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+    <div className="space-y-4 pb-20 md:pb-6">
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <LayoutDashboard className="w-6 h-6 text-primary-600" />
+        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <SummaryCard
-          title="Net Worth"
-          value={netWorth}
-          icon={PiggyBank}
-          iconColor={netWorth >= 0 ? 'text-primary-600 dark:text-primary-400' : 'text-orange-600 dark:text-orange-400'}
-          iconBgColor={netWorth >= 0 ? 'bg-primary-100 dark:bg-primary-900/30' : 'bg-orange-100 dark:bg-orange-900/30'}
-          valueColor={netWorth >= 0 ? 'text-primary-600 dark:text-primary-400' : 'text-orange-600 dark:text-orange-400'}
-        />
-        <SummaryCard
-          title="Pemasukan"
-          value={currentMonthSummary.income}
-          icon={TrendingUp}
-          iconColor="text-green-600 dark:text-green-400"
-          iconBgColor="bg-green-100 dark:bg-green-900/30"
-          valueColor="text-green-600 dark:text-green-400"
-        />
-        <SummaryCard
-          title="Pengeluaran"
-          value={currentMonthSummary.expense}
-          icon={TrendingDown}
-          iconColor="text-red-600 dark:text-red-400"
-          iconBgColor="bg-red-100 dark:bg-red-900/30"
-          valueColor="text-red-600 dark:text-red-400"
-        />
-        <SummaryCard
-          title="Surplus"
-          value={currentMonthSummary.surplus}
-          icon={ArrowUpDown}
-          iconColor={currentMonthSummary.surplus >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'}
-          iconBgColor={currentMonthSummary.surplus >= 0 ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-orange-100 dark:bg-orange-900/30'}
-          valueColor={currentMonthSummary.surplus >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'}
-        />
-      </div>
+      {/* Quick Stats - Main Summary */}
+      <QuickStats
+        netWorth={netWorth}
+        income={currentMonthSummary.income}
+        expense={currentMonthSummary.expense}
+        surplus={currentMonthSummary.surplus}
+        activeInstallments={activeInstallments.length}
+        totalInstallmentMonthly={totalInstallmentMonthly}
+        savingsCount={savings.length}
+        totalSaved={totalSaved}
+        wishlistCount={activeWishlist.length}
+        wishlistProgress={wishlistProgress}
+      />
 
-      {/* Insights */}
+      {/* Insights - Show if any */}
       {insights.length > 0 && <InsightCard insights={insights} />}
 
-      {/* Charts Row 1 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CashflowChart data={monthlyCashflow} />
-        <NetWorthChart data={netWorthTrend} />
-      </div>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Left Column - Charts */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Cashflow Chart */}
+          <MiniCashflowChart data={monthlyCashflow} />
+          
+          {/* Two Column Grid for smaller cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Expense Distribution */}
+            <FinancialOverview 
+              expenseBreakdown={expenseBreakdown} 
+              totalExpense={currentMonthSummary.expense}
+            />
+            
+            {/* Top Categories */}
+            <TopCategories categories={topExpenseCategories} />
+          </div>
 
-      {/* Charts Row 2 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ExpenseBreakdown transactions={transactions} categories={categories} />
-        <TrendChart data={monthlyCashflow} />
-      </div>
+          {/* Emergency Fund */}
+          <EmergencyFundProgress status={emergencyFundProgress} />
+        </div>
 
-      {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <EmergencyFundProgress status={emergencyFundProgress} />
-        <TopCategories categories={topExpenseCategories} />
+        {/* Right Column - Commitments */}
+        <div className="lg:col-span-1">
+          <ActiveCommitments
+            installments={installments}
+            wishlist={wishlist}
+            savings={savings}
+          />
+        </div>
       </div>
     </div>
   )

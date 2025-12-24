@@ -1,11 +1,11 @@
-fix: Cloud sync now reads/writes from localStorage instead of IndexedDB
-
-Root cause: Stores persist data to localStorage, but cloudSync was reading from IndexedDB (Dexie) which was empty.
+feat: Redesign dashboard with modern compact layout
 
 Changes:
-- cloudSync.ts now reads from localStorage keys (pfm_transactions, pfm_categories, etc.)
-- cloudSync.ts now writes to localStorage when loading from cloud
-- Removed dependency on storageService.exportAllData() which used IndexedDB
-- Added helper functions getLocalStorageData() and setLocalStorageData()
-
-This fixes the issue where data was not syncing between devices because auto-sync was saving empty data to cloud.
+- New QuickStats component with gradient Net Worth card and compact summary
+- Added secondary stats showing Cicilan, Tabungan, Wishlist with quick links
+- New MiniCashflowChart with smaller, cleaner bar chart
+- New FinancialOverview with mini pie chart for expense distribution
+- New ActiveCommitments showing all financial commitments in one place
+- Updated TopCategories, EmergencyFundProgress, InsightCard for compact design
+- Responsive layout: 3-column on desktop, stacked on mobile
+- All financial data now visible in one dashboard view

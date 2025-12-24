@@ -9,48 +9,48 @@ interface TopCategoriesProps {
 export default function TopCategories({ categories }: TopCategoriesProps) {
   if (categories.length === 0) {
     return (
-      <div className="card p-4">
-        <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
           Top 5 Pengeluaran
         </h3>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">
-          Belum ada data pengeluaran bulan ini
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center py-6">
+          Belum ada data pengeluaran
         </p>
       </div>
     )
   }
 
   return (
-    <div className="card p-4">
-      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+      <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">
         Top 5 Pengeluaran
       </h3>
 
-      <div className="space-y-3">
+      <div className="space-y-2.5">
         {categories.map((category, index) => (
-          <div key={category.categoryId} className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-medium text-gray-600 dark:text-gray-400">
+          <div key={category.categoryId} className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-[10px] font-medium text-gray-500 dark:text-gray-400">
               {index + 1}
             </div>
             
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+              <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
                 {category.categoryName}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">
                 {formatCurrency(category.currentMonth)}
               </p>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {category.change > 0 ? (
-                <TrendingUp className="w-4 h-4 text-red-500" />
+                <TrendingUp className="w-3 h-3 text-red-500" />
               ) : category.change < 0 ? (
-                <TrendingDown className="w-4 h-4 text-green-500" />
+                <TrendingDown className="w-3 h-3 text-green-500" />
               ) : (
-                <Minus className="w-4 h-4 text-gray-400" />
+                <Minus className="w-3 h-3 text-gray-400" />
               )}
-              <span className={`text-xs ${
+              <span className={`text-[10px] ${
                 category.change > 0 ? 'text-red-600' : category.change < 0 ? 'text-green-600' : 'text-gray-500'
               }`}>
                 {category.change !== 0 && (
@@ -66,8 +66,8 @@ export default function TopCategories({ categories }: TopCategoriesProps) {
         ))}
       </div>
 
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-        Dibandingkan dengan bulan lalu
+      <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+        vs bulan lalu
       </p>
     </div>
   )
