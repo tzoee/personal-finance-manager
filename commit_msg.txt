@@ -1,6 +1,11 @@
-Improve auto-sync with better change detection
+fix: Cloud sync now reads/writes from localStorage instead of IndexedDB
 
-- Add data hash to detect actual changes
-- Reduce debounce to 2 seconds for faster sync
-- Add console logging for auto-sync events
-- Prevent duplicate saves when data hasn't changed
+Root cause: Stores persist data to localStorage, but cloudSync was reading from IndexedDB (Dexie) which was empty.
+
+Changes:
+- cloudSync.ts now reads from localStorage keys (pfm_transactions, pfm_categories, etc.)
+- cloudSync.ts now writes to localStorage when loading from cloud
+- Removed dependency on storageService.exportAllData() which used IndexedDB
+- Added helper functions getLocalStorageData() and setLocalStorageData()
+
+This fixes the issue where data was not syncing between devices because auto-sync was saving empty data to cloud.

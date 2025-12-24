@@ -3,8 +3,65 @@
  */
 
 import { supabase } from '../lib/supabase'
-import { storageService } from './storage'
 import type { AppData } from '../types'
+import { CURRENT_SCHEMA_VERSION, DEFAULT_SETTINGS } from '../constants/defaults'
+
+/**
+ * Helper to read data from localStorage (where stores actually persist data)
+ */
+function getLocalStorageData(): AppData {
+  const parseJSON = <T>(key: string, fallback: T): T => {
+    try {
+      const stored = localStorage.getItem(key)
+      return stored ? JSON.parse(stored) : fallback
+    } catch {
+      return fallback
+    }
+  }
+
+  return {
+    version: CURRENT_SCHEMA_VERSION,
+    transactions: parseJSON('pfm_transactions', []),
+    categories: parseJSON('pfm_categories', []),
+    wishlist: parseJSON('pfm_wishlist', []),
+    installments: parseJSON('pfm_installments', []),
+    monthlyNeeds: parseJSON('pfm_monthly_needs', []),
+    monthlyNeedPayments: parseJSON('pfm_monthly_need_payments', []),
+    assets: parseJSON('pfm_assets', []),
+    settings: parseJSON('pfm_settings', DEFAULT_SETTINGS),
+    exportedAt: new Date().toISOString(),
+  }
+}
+
+/**
+ * Helper to write data to localStorage (to sync with stores)
+ */
+function setLocalStorageData(data: AppData): void {
+  if (data.transactions?.length) {
+    localStorage.setItem('pfm_transactions', JSON.stringify(data.transactions))
+  }
+  if (data.categories?.length) {
+    localStorage.setItem('pfm_categories', JSON.stringify(data.categories))
+  }
+  if (data.wishlist?.length) {
+    localStorage.setItem('pfm_wishlist', JSON.stringify(data.wishlist))
+  }
+  if (data.installments?.length) {
+    localStorage.setItem('pfm_installments', JSON.stringify(data.installments))
+  }
+  if (data.monthlyNeeds?.length) {
+    localStorage.setItem('pfm_monthly_needs', JSON.stringify(data.monthlyNeeds))
+  }
+  if (data.monthlyNeedPayments?.length) {
+    localStorage.setItem('pfm_monthly_need_payments', JSON.stringify(data.monthlyNeedPayments))
+  }
+  if (data.assets?.length) {
+    localStorage.setItem('pfm_assets', JSON.stringify(data.assets))
+  }
+  if (data.settings && Object.keys(data.settings).length > 0) {
+    localStorage.setItem('pfm_settings', JSON.stringify(data.settings))
+  }
+}
 
 export interface SyncStatus {
   lastSynced: string | null
@@ -27,8 +84,22 @@ export const cloudSyncService = {
         return { success: false, error: 'User not authenticated' }
       }
 
-      // Export all local data
-      const appData = await storageService.exportAllData()
+      // Get data from localStorage (where stores actually persist)
+      const appData = getLocalStorageData()
+      
+      // Check if we have actual data to save
+      const hasData = (appData.transactions?.length || 0) > 0 || 
+                      (appData.categories?.length || 0) > 0 ||
+                      (appData.wishlist?.length || 0) > 0 ||
+                      (appData.installments?.length || 0) > 0 ||
+                      (appData.monthlyNeeds?.length || 0) > 0 ||
+                      (appData.assets?.length || 0) > 0
+      
+      if (!hasData) {
+        console.log('[CloudSync] Skip save: No data to save (localStorage is empty)')
+        return { success: true } // Don't overwrite cloud with empty data
+      }
+      
       console.log('[CloudSync] Saving data for user:', user.id)
       console.log('[CloudSync] Data summary:', {
         transactions: appData.transactions?.length || 0,
@@ -112,12 +183,12 @@ export const cloudSyncService = {
         assets: cloudData.assets?.length || 0,
       })
 
-      // Import data to local storage (replace mode)
-      await storageService.importData(cloudData, 'replace')
+      // Write data to localStorage (where stores read from)
+      setLocalStorageData(cloudData)
       
       // Save last sync time
       localStorage.setItem('pfm_last_synced', data.updated_at || new Date().toISOString())
-      console.log('[CloudSync] Load successful')
+      console.log('[CloudSync] Load successful - data written to localStorage')
 
       return { success: true, hasData: true }
     } catch (err) {
