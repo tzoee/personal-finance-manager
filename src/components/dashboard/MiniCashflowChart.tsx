@@ -16,7 +16,11 @@ export default function MiniCashflowChart({ data }: MiniCashflowChartProps) {
   const chartData = data.map(d => ({
     ...d,
     monthLabel: formatMonth(d.month),
+    totalExpense: d.expense + d.installment, // Combined for tooltip
   }))
+
+  // Check if there are any installments
+  const hasInstallments = data.some(d => d.installment > 0)
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
@@ -33,11 +37,17 @@ export default function MiniCashflowChart({ data }: MiniCashflowChartProps) {
             <div className="w-2 h-2 rounded-full bg-red-500"></div>
             <span className="text-gray-500 dark:text-gray-400">Keluar</span>
           </div>
+          {hasInstallments && (
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+              <span className="text-gray-500 dark:text-gray-400">Cicilan</span>
+            </div>
+          )}
         </div>
       </div>
-      <div className="h-40">
+      <div className="h-44">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barGap={2}>
+          <BarChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }} barGap={1} barCategoryGap="20%">
             <XAxis 
               dataKey="monthLabel" 
               tick={{ fontSize: 10 }}
@@ -53,7 +63,14 @@ export default function MiniCashflowChart({ data }: MiniCashflowChartProps) {
               className="text-gray-500 dark:text-gray-400"
             />
             <Tooltip 
-              formatter={(value: number) => formatCurrency(value)}
+              formatter={(value: number, name: string) => {
+                const labels: Record<string, string> = {
+                  income: 'Pemasukan',
+                  expense: 'Pengeluaran',
+                  installment: 'Cicilan',
+                }
+                return [formatCurrency(value), labels[name] || name]
+              }}
               labelFormatter={(label) => label}
               contentStyle={{ 
                 backgroundColor: 'var(--tooltip-bg, #fff)',
@@ -62,18 +79,49 @@ export default function MiniCashflowChart({ data }: MiniCashflowChartProps) {
                 fontSize: '12px'
               }}
             />
-            <Bar dataKey="income" name="Pemasukan" radius={[3, 3, 0, 0]} maxBarSize={20}>
+            <Bar dataKey="income" name="income" radius={[3, 3, 0, 0]} maxBarSize={16}>
               {chartData.map((_, index) => (
                 <Cell key={`income-${index}`} fill="#22c55e" />
               ))}
             </Bar>
-            <Bar dataKey="expense" name="Pengeluaran" radius={[3, 3, 0, 0]} maxBarSize={20}>
+            <Bar dataKey="expense" name="expense" radius={[3, 3, 0, 0]} maxBarSize={16}>
               {chartData.map((_, index) => (
                 <Cell key={`expense-${index}`} fill="#ef4444" />
               ))}
             </Bar>
+            {hasInstallments && (
+              <Bar dataKey="installment" name="installment" radius={[3, 3, 0, 0]} maxBarSize={16}>
+                {chartData.map((_, index) => (
+                  <Cell key={`installment-${index}`} fill="#a855f7" />
+                ))}
+              </Bar>
+            )}
           </BarChart>
         </ResponsiveContainer>
+      </div>
+      
+      {/* Summary row */}
+      <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 grid grid-cols-3 gap-2 text-center">
+        <div>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Total Masuk</p>
+          <p className="text-xs font-semibold text-green-600 dark:text-green-400">
+            {formatCurrency(data.reduce((sum, d) => sum + d.income, 0))}
+          </p>
+        </div>
+        <div>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">Total Keluar</p>
+          <p className="text-xs font-semibold text-red-600 dark:text-red-400">
+            {formatCurrency(data.reduce((sum, d) => sum + d.expense, 0))}
+          </p>
+        </div>
+        {hasInstallments && (
+          <div>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">Total Cicilan</p>
+            <p className="text-xs font-semibold text-purple-600 dark:text-purple-400">
+              {formatCurrency(data.reduce((sum, d) => sum + d.installment, 0))}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )

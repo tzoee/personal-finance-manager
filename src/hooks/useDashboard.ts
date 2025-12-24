@@ -54,7 +54,7 @@ export function useDashboard() {
     return transactions.filter(tx => tx.date >= monthStart && tx.date <= monthEnd)
   }, [transactions])
 
-  // Monthly summary for current month
+  // Monthly summary for current month (including installments)
   const currentMonthSummary = useMemo(() => {
     const income = currentMonthTransactions
       .filter(tx => tx.type === 'income')
@@ -63,18 +63,29 @@ export function useDashboard() {
       .filter(tx => tx.type === 'expense')
       .reduce((sum, tx) => sum + tx.amount, 0)
     
+    // Calculate active installments for current month
+    const activeInstallments = installments.filter(i => i.status === 'active')
+    const installmentTotal = activeInstallments.reduce((sum, i) => sum + i.monthlyAmount, 0)
+    
+    const totalExpense = expense + installmentTotal
+    
     return {
       income,
       expense,
-      surplus: income - expense,
-      surplusRate: calculateSurplusRate(income, expense),
+      installment: installmentTotal,
+      totalExpense,
+      surplus: income - totalExpense,
+      surplusRate: calculateSurplusRate(income, totalExpense),
     }
-  }, [currentMonthTransactions])
+  }, [currentMonthTransactions, installments])
 
-  // Cashflow data for last 6 months
+  // Cashflow data for last 6 months (including installments)
   const monthlyCashflow = useMemo((): CashflowData[] => {
     const result: CashflowData[] = []
     const today = parseISO(getCurrentDate())
+
+    // Get active installments
+    const activeInstallments = installments.filter(i => i.status === 'active')
 
     for (let i = 5; i >= 0; i--) {
       const targetDate = subMonths(today, i)
@@ -91,16 +102,28 @@ export function useDashboard() {
         .filter(tx => tx.type === 'expense')
         .reduce((sum, tx) => sum + tx.amount, 0)
 
+      // Calculate installment payments for this month
+      // Check if installment was active during this month (based on startDate)
+      const installmentTotal = activeInstallments
+        .filter(inst => {
+          const startDate = parseISO(inst.startDate)
+          const monthEndDate = endOfMonth(targetDate)
+          // Installment is active if it started before or during this month
+          return startDate <= monthEndDate
+        })
+        .reduce((sum, inst) => sum + inst.monthlyAmount, 0)
+
       result.push({
         month: monthKey,
         income,
         expense,
-        surplus: income - expense,
+        installment: installmentTotal,
+        surplus: income - expense - installmentTotal,
       })
     }
 
     return result
-  }, [transactions])
+  }, [transactions, installments])
 
   // Expense breakdown for current month
   const expenseBreakdown = useMemo((): CategoryBreakdown[] => {

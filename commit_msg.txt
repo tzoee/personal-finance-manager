@@ -1,11 +1,7 @@
-feat: Redesign dashboard with modern compact layout
+feat(dashboard): integrate installments into cashflow chart
 
-Changes:
-- New QuickStats component with gradient Net Worth card and compact summary
-- Added secondary stats showing Cicilan, Tabungan, Wishlist with quick links
-- New MiniCashflowChart with smaller, cleaner bar chart
-- New FinancialOverview with mini pie chart for expense distribution
-- New ActiveCommitments showing all financial commitments in one place
-- Updated TopCategories, EmergencyFundProgress, InsightCard for compact design
-- Responsive layout: 3-column on desktop, stacked on mobile
-- All financial data now visible in one dashboard view
+- Add installment field to CashflowData type
+- Calculate monthly installment totals in useDashboard hook
+- Display installments as purple bar in MiniCashflowChart
+- Show "incl. cicilan" breakdown in QuickStats expense card
+- Update currentMonthSummary to include installment totals

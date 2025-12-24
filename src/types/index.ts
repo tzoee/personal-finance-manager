@@ -259,6 +259,7 @@ export interface CashflowData {
   month: string // YYYY-MM
   income: number
   expense: number
+  installment: number // Monthly installment payments
   surplus: number
 }
 

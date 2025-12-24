@@ -55,6 +55,7 @@ export default function Dashboard() {
         netWorth={netWorth}
         income={currentMonthSummary.income}
         expense={currentMonthSummary.expense}
+        installment={currentMonthSummary.installment}
         surplus={currentMonthSummary.surplus}
         activeInstallments={activeInstallments.length}
         totalInstallmentMonthly={totalInstallmentMonthly}
