@@ -1,8 +1,5 @@
-style(installments): redesign PaymentHistory to ultra-compact modern style
+fix(dashboard): show installment bar based on monthlyAmount not payments
 
-- Change from vertical list to horizontal inline tags
-- Reduce font size and padding for more compact display
-- Add Calendar icon for visual clarity
-- Show only 2 payments when collapsed (was 3)
-- Use pill/badge style for payment items
-- Add green badge for total paid amount
+- Changed installment calculation to use monthlyAmount from active installments
+- Bar now shows expected monthly installment amount, not just recorded payments
+- Installment bar will appear if there are active installments

@@ -91,15 +91,16 @@ export function useDashboard() {
         .filter(tx => tx.type === 'expense')
         .reduce((sum, tx) => sum + tx.amount, 0)
 
-      // Calculate installment payments for this month
+      // Calculate installment amount for this month
+      // Use monthlyAmount from active installments that started before or during this month
       const installmentAmount = installments
-        .filter(inst => inst.status === 'active')
-        .reduce((sum, inst) => {
-          const monthPayments = inst.payments.filter(p => {
-            return p.date >= monthStart && p.date <= monthEnd
-          })
-          return sum + monthPayments.reduce((pSum, p) => pSum + p.amount, 0)
-        }, 0)
+        .filter(inst => {
+          // Check if installment is active or was active during this month
+          const instStartDate = inst.startDate
+          // Installment applies if it started before or during this month
+          return instStartDate <= monthEnd && inst.status === 'active'
+        })
+        .reduce((sum, inst) => sum + inst.monthlyAmount, 0)
 
       result.push({
         month: monthKey,
