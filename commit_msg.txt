@@ -1,7 +1,11 @@
-feat(dashboard): integrate installments into cashflow chart
+fix: cleanup abandoned cicilan integration & redesign payment history
 
-- Add installment field to CashflowData type
-- Calculate monthly installment totals in useDashboard hook
-- Display installments as purple bar in MiniCashflowChart
-- Show "incl. cicilan" breakdown in QuickStats expense card
-- Update currentMonthSummary to include installment totals
+- Remove installment field from CashflowData type (cicilan already in expenses)
+- Simplify useDashboard to not double-count installments
+- Update MiniCashflowChart to 2-bar chart (income/expense only)
+- Remove installment prop from QuickStats component
+- Redesign PaymentHistory with compact modern style:
+  - Smaller font sizes (11px)
+  - Compact row layout with check icons
+  - Collapsible with "show more" indicator
+  - Indonesian date format

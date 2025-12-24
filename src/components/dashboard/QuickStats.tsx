@@ -14,7 +14,6 @@ interface QuickStatsProps {
   netWorth: number
   income: number
   expense: number
-  installment: number
   surplus: number
   activeInstallments: number
   totalInstallmentMonthly: number
@@ -28,7 +27,6 @@ export default function QuickStats({
   netWorth,
   income,
   expense,
-  installment,
   surplus,
   activeInstallments,
   totalInstallmentMonthly,
@@ -37,8 +35,6 @@ export default function QuickStats({
   wishlistCount,
   wishlistProgress,
 }: QuickStatsProps) {
-  const totalExpense = expense + installment
-
   return (
     <div className="space-y-4">
       {/* Main Stats - Compact Grid */}
@@ -67,7 +63,7 @@ export default function QuickStats({
           </p>
         </div>
 
-        {/* Total Expense (including installments) */}
+        {/* Expense */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
           <div className="flex items-center gap-2 mb-1">
             <div className="p-1 rounded bg-red-100 dark:bg-red-900/30">
@@ -76,13 +72,8 @@ export default function QuickStats({
             <span className="text-xs text-gray-500 dark:text-gray-400">Pengeluaran</span>
           </div>
           <p className="text-lg font-bold text-red-600 dark:text-red-400">
-            {formatCurrency(totalExpense)}
+            {formatCurrency(expense)}
           </p>
-          {installment > 0 && (
-            <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">
-              incl. cicilan {formatCurrency(installment)}
-            </p>
-          )}
         </div>
 
         {/* Surplus */}
