@@ -1,7 +1,8 @@
-feat(dashboard): add separate installment bar in cashflow chart and net worth trend
+style(installments): redesign PaymentHistory to ultra-compact modern style
 
-- Add installment calculation to monthlyCashflow in useDashboard
-- Update MiniCashflowChart to show 3 bars: income (green), expense (red), installment (purple)
-- Create MiniNetWorthChart component for net worth trend visualization
-- Update Dashboard layout to show both charts side by side
-- Surplus now calculated as income - expense - installment
+- Change from vertical list to horizontal inline tags
+- Reduce font size and padding for more compact display
+- Add Calendar icon for visual clarity
+- Show only 2 payments when collapsed (was 3)
+- Use pill/badge style for payment items
+- Add green badge for total paid amount

@@ -1,10 +1,10 @@
 /**
  * PaymentHistory Component
- * Compact, modern payment history display
+ * Ultra-compact, modern payment history display
  */
 
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Check } from 'lucide-react'
+import { ChevronDown, ChevronUp, Check, Calendar } from 'lucide-react'
 import type { InstallmentPayment } from '../../types'
 import { formatCurrency } from '../../utils/formatters'
 import { format, parseISO } from 'date-fns'
@@ -26,9 +26,9 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )
 
-  // Show only last 3 payments when collapsed
-  const displayedPayments = isExpanded ? sortedPayments : sortedPayments.slice(0, 3)
-  const hasMore = sortedPayments.length > 3
+  // Show only last 2 payments when collapsed
+  const displayedPayments = isExpanded ? sortedPayments : sortedPayments.slice(0, 2)
+  const hasMore = sortedPayments.length > 2
 
   const formatShortDate = (dateStr: string) => {
     try {
@@ -39,64 +39,55 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
   }
 
   return (
-    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700">
+    <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
       {/* Header - Clickable */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex items-center justify-between w-full text-left py-1 group"
+        className="flex items-center justify-between w-full text-left group"
       >
-        <div className="flex items-center gap-1.5">
-          <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
-            Riwayat ({payments.length})
-          </span>
-          <span className="text-[11px] text-green-600 dark:text-green-400 font-medium">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Calendar className="w-3 h-3 text-gray-400" />
+            <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
+              {payments.length}x bayar
+            </span>
+          </div>
+          <span className="text-[10px] px-1.5 py-0.5 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded font-medium">
             {formatCurrency(totalPaid)}
           </span>
         </div>
         {hasMore && (
           <div className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
             {isExpanded ? (
-              <ChevronUp className="w-3.5 h-3.5" />
+              <ChevronUp className="w-3 h-3" />
             ) : (
-              <ChevronDown className="w-3.5 h-3.5" />
+              <ChevronDown className="w-3 h-3" />
             )}
           </div>
         )}
       </button>
 
-      {/* Payment List - Compact */}
-      <div className="mt-1.5 space-y-1">
+      {/* Payment List - Ultra Compact */}
+      <div className="mt-1.5 flex flex-wrap gap-1">
         {displayedPayments.map((payment) => (
           <div
             key={payment.id}
-            className="flex items-center justify-between py-1 px-2 bg-gray-50 dark:bg-gray-700/30 rounded text-[11px]"
+            className="inline-flex items-center gap-1 py-0.5 px-1.5 bg-gray-50 dark:bg-gray-700/40 rounded text-[10px] group/item"
+            title={payment.note || formatShortDate(payment.date)}
           >
-            <div className="flex items-center gap-1.5">
-              <div className="w-4 h-4 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center flex-shrink-0">
-                <Check className="w-2.5 h-2.5 text-green-600 dark:text-green-400" />
-              </div>
-              <span className="text-gray-500 dark:text-gray-400">
-                {formatShortDate(payment.date)}
-              </span>
-              {payment.note && (
-                <span className="text-gray-400 dark:text-gray-500 truncate max-w-[80px]" title={payment.note}>
-                  • {payment.note}
-                </span>
-              )}
-            </div>
-            <span className="font-medium text-gray-700 dark:text-gray-300">
+            <Check className="w-2.5 h-2.5 text-green-500" />
+            <span className="text-gray-500 dark:text-gray-400">{formatShortDate(payment.date)}</span>
+            <span className="text-gray-700 dark:text-gray-300 font-medium">
               {formatCurrency(payment.amount)}
             </span>
           </div>
         ))}
+        {!isExpanded && hasMore && (
+          <span className="inline-flex items-center py-0.5 px-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+            +{sortedPayments.length - 2}
+          </span>
+        )}
       </div>
-
-      {/* Show more indicator */}
-      {!isExpanded && hasMore && (
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center mt-1">
-          +{sortedPayments.length - 3} lainnya
-        </p>
-      )}
     </div>
   )
 }
