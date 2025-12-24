@@ -5,6 +5,7 @@ import { useWishlistStore } from '../store/wishlistStore'
 import { useSavingsStore } from '../store/savingsStore'
 import QuickStats from '../components/dashboard/QuickStats'
 import MiniCashflowChart from '../components/dashboard/MiniCashflowChart'
+import MiniNetWorthChart from '../components/dashboard/MiniNetWorthChart'
 import FinancialOverview from '../components/dashboard/FinancialOverview'
 import ActiveCommitments from '../components/dashboard/ActiveCommitments'
 import EmergencyFundProgress from '../components/dashboard/EmergencyFundProgress'
@@ -18,6 +19,7 @@ export default function Dashboard() {
     monthlyCashflow,
     expenseBreakdown,
     topExpenseCategories,
+    netWorthTrend,
     emergencyFundProgress,
     insights,
   } = useDashboard()
@@ -71,8 +73,11 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left Column - Charts */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Cashflow Chart */}
-          <MiniCashflowChart data={monthlyCashflow} />
+          {/* Cashflow & Net Worth Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <MiniCashflowChart data={monthlyCashflow} />
+            <MiniNetWorthChart data={netWorthTrend} currentNetWorth={netWorth} />
+          </div>
           
           {/* Two Column Grid for smaller cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -91,16 +91,27 @@ export function useDashboard() {
         .filter(tx => tx.type === 'expense')
         .reduce((sum, tx) => sum + tx.amount, 0)
 
+      // Calculate installment payments for this month
+      const installmentAmount = installments
+        .filter(inst => inst.status === 'active')
+        .reduce((sum, inst) => {
+          const monthPayments = inst.payments.filter(p => {
+            return p.date >= monthStart && p.date <= monthEnd
+          })
+          return sum + monthPayments.reduce((pSum, p) => pSum + p.amount, 0)
+        }, 0)
+
       result.push({
         month: monthKey,
         income,
         expense,
-        surplus: income - expense,
+        installment: installmentAmount,
+        surplus: income - expense - installmentAmount,
       })
     }
 
     return result
-  }, [transactions])
+  }, [transactions, installments])
 
   // Expense breakdown for current month
   const expenseBreakdown = useMemo((): CategoryBreakdown[] => {

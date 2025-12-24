@@ -1,11 +1,7 @@
-fix: cleanup abandoned cicilan integration & redesign payment history
+feat(dashboard): add separate installment bar in cashflow chart and net worth trend
 
-- Remove installment field from CashflowData type (cicilan already in expenses)
-- Simplify useDashboard to not double-count installments
-- Update MiniCashflowChart to 2-bar chart (income/expense only)
-- Remove installment prop from QuickStats component
-- Redesign PaymentHistory with compact modern style:
-  - Smaller font sizes (11px)
-  - Compact row layout with check icons
-  - Collapsible with "show more" indicator
-  - Indonesian date format
+- Add installment calculation to monthlyCashflow in useDashboard
+- Update MiniCashflowChart to show 3 bars: income (green), expense (red), installment (purple)
+- Create MiniNetWorthChart component for net worth trend visualization
+- Update Dashboard layout to show both charts side by side
+- Surplus now calculated as income - expense - installment
