@@ -17,6 +17,7 @@ import ActiveCommitments from '../components/dashboard/ActiveCommitments'
 import EmergencyFundProgress from '../components/dashboard/EmergencyFundProgress'
 import InsightCard from '../components/dashboard/InsightCard'
 import TopCategories from '../components/dashboard/TopCategories'
+import FadeIn from '../components/ui/FadeIn'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -61,79 +62,95 @@ export default function Dashboard() {
   return (
     <div className="space-y-4 pb-20 md:pb-6">
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <LayoutDashboard className="w-6 h-6 text-primary-600" />
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
-      </div>
+      <FadeIn delay={0}>
+        <div className="flex items-center gap-2">
+          <LayoutDashboard className="w-6 h-6 text-primary-600" />
+          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+        </div>
+      </FadeIn>
 
       {/* Quick Stats - Main Summary */}
-      <QuickStats
-        netWorth={netWorth}
-        income={currentMonthSummary.income}
-        expense={currentMonthSummary.expense}
-        surplus={currentMonthSummary.surplus}
-        activeInstallments={activeInstallments.length}
-        totalInstallmentMonthly={totalInstallmentMonthly}
-        savingsCount={savings.length}
-        totalSaved={totalSaved}
-        wishlistCount={activeWishlist.length}
-        wishlistProgress={wishlistProgress}
-      />
+      <FadeIn delay={50}>
+        <QuickStats
+          netWorth={netWorth}
+          income={currentMonthSummary.income}
+          expense={currentMonthSummary.expense}
+          surplus={currentMonthSummary.surplus}
+          activeInstallments={activeInstallments.length}
+          totalInstallmentMonthly={totalInstallmentMonthly}
+          savingsCount={savings.length}
+          totalSaved={totalSaved}
+          wishlistCount={activeWishlist.length}
+          wishlistProgress={wishlistProgress}
+        />
+      </FadeIn>
 
       {/* Insights - Show if any */}
-      {insights.length > 0 && <InsightCard insights={insights} />}
+      {insights.length > 0 && (
+        <FadeIn delay={100}>
+          <InsightCard insights={insights} />
+        </FadeIn>
+      )}
 
       {/* Quick Actions & Due Dates Row */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <QuickActions
-          onAddTransaction={handleAddTransaction}
-          onPayInstallment={handlePayInstallment}
-          onAddSavings={handleAddSavings}
-        />
-        <UpcomingDueDates 
-          installments={installments}
-          monthlyNeeds={monthlyNeeds}
-        />
-        <BudgetProgress 
-          budget={settings.monthlyLivingCost}
-          actual={currentMonthSummary.expense}
-        />
-      </div>
+      <FadeIn delay={150}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <QuickActions
+            onAddTransaction={handleAddTransaction}
+            onPayInstallment={handlePayInstallment}
+            onAddSavings={handleAddSavings}
+          />
+          <UpcomingDueDates 
+            installments={installments}
+            monthlyNeeds={monthlyNeeds}
+          />
+          <BudgetProgress 
+            budget={settings.monthlyLivingCost}
+            actual={currentMonthSummary.expense}
+          />
+        </div>
+      </FadeIn>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Left Column - Charts */}
         <div className="lg:col-span-2 space-y-4">
           {/* Cashflow & Net Worth Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <MiniCashflowChart data={monthlyCashflow} />
-            <MiniNetWorthChart data={netWorthTrend} currentNetWorth={netWorth} />
-          </div>
+          <FadeIn delay={200}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <MiniCashflowChart data={monthlyCashflow} />
+              <MiniNetWorthChart data={netWorthTrend} currentNetWorth={netWorth} />
+            </div>
+          </FadeIn>
           
           {/* Two Column Grid for smaller cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Expense Distribution */}
-            <FinancialOverview 
-              expenseBreakdown={expenseBreakdown} 
-              totalExpense={currentMonthSummary.expense}
-            />
-            
-            {/* Top Categories */}
-            <TopCategories categories={topExpenseCategories} />
-          </div>
+          <FadeIn delay={250}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Expense Distribution */}
+              <FinancialOverview 
+                expenseBreakdown={expenseBreakdown} 
+                totalExpense={currentMonthSummary.expense}
+              />
+              
+              {/* Top Categories */}
+              <TopCategories categories={topExpenseCategories} />
+            </div>
+          </FadeIn>
 
           {/* Emergency Fund */}
-          <EmergencyFundProgress status={emergencyFundProgress} />
+          <FadeIn delay={300}>
+            <EmergencyFundProgress status={emergencyFundProgress} />
+          </FadeIn>
         </div>
 
         {/* Right Column - Commitments */}
-        <div className="lg:col-span-1">
+        <FadeIn delay={350} className="lg:col-span-1">
           <ActiveCommitments
             installments={installments}
             wishlist={wishlist}
             savings={savings}
           />
-        </div>
+        </FadeIn>
       </div>
     </div>
   )

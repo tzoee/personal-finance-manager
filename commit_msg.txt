@@ -1,6 +1,9 @@
-feat(dashboard): add Dashboard Enhancements - Phase 1
+feat(ui): add animations and micro-interactions - Phase 2
 
-- Add QuickActions widget with buttons for quick transaction, pay installment, add savings
-- Add UpcomingDueDates component showing upcoming due dates for installments and monthly needs
-- Add BudgetProgress component with circular progress ring showing budget vs actual spending
-- Integrate all new components into Dashboard layout
+- Add AnimatedNumber component for count-up animation on currency values
+- Add FadeIn component for staggered fade-in animations
+- Add Skeleton components for loading states
+- Add PageTransition component for page transitions
+- Update QuickStats with animated numbers and hover effects
+- Add FadeIn animations to Dashboard sections
+- Add hover scale effects on cards
