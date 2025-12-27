@@ -1,9 +1,15 @@
 import { LayoutDashboard } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useDashboard } from '../hooks/useDashboard'
 import { useInstallmentStore } from '../store/installmentStore'
 import { useWishlistStore } from '../store/wishlistStore'
 import { useSavingsStore } from '../store/savingsStore'
+import { useMonthlyNeedStore } from '../store/monthlyNeedStore'
+import { useSettingsStore } from '../store/settingsStore'
 import QuickStats from '../components/dashboard/QuickStats'
+import QuickActions from '../components/dashboard/QuickActions'
+import UpcomingDueDates from '../components/dashboard/UpcomingDueDates'
+import BudgetProgress from '../components/dashboard/BudgetProgress'
 import MiniCashflowChart from '../components/dashboard/MiniCashflowChart'
 import MiniNetWorthChart from '../components/dashboard/MiniNetWorthChart'
 import FinancialOverview from '../components/dashboard/FinancialOverview'
@@ -13,6 +19,7 @@ import InsightCard from '../components/dashboard/InsightCard'
 import TopCategories from '../components/dashboard/TopCategories'
 
 export default function Dashboard() {
+  const navigate = useNavigate()
   const {
     currentMonthSummary,
     netWorth,
@@ -27,6 +34,8 @@ export default function Dashboard() {
   const { installments } = useInstallmentStore()
   const { items: wishlist } = useWishlistStore()
   const { savings } = useSavingsStore()
+  const { needs: monthlyNeeds } = useMonthlyNeedStore()
+  const { settings } = useSettingsStore()
 
   // Calculate stats for QuickStats
   const activeInstallments = installments.filter(i => i.status === 'active')
@@ -43,6 +52,11 @@ export default function Dashboard() {
         return sum + progress
       }, 0) / activeWishlist.length
     : 0
+
+  // Quick action handlers
+  const handleAddTransaction = () => navigate('/transactions')
+  const handlePayInstallment = () => navigate('/installments')
+  const handleAddSavings = () => navigate('/savings')
 
   return (
     <div className="space-y-4 pb-20 md:pb-6">
@@ -68,6 +82,23 @@ export default function Dashboard() {
 
       {/* Insights - Show if any */}
       {insights.length > 0 && <InsightCard insights={insights} />}
+
+      {/* Quick Actions & Due Dates Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <QuickActions
+          onAddTransaction={handleAddTransaction}
+          onPayInstallment={handlePayInstallment}
+          onAddSavings={handleAddSavings}
+        />
+        <UpcomingDueDates 
+          installments={installments}
+          monthlyNeeds={monthlyNeeds}
+        />
+        <BudgetProgress 
+          budget={settings.monthlyLivingCost}
+          actual={currentMonthSummary.expense}
+        />
+      </div>
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

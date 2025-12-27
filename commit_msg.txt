@@ -1,5 +1,6 @@
-fix(dashboard): show installment bar based on monthlyAmount not payments
+feat(dashboard): add Dashboard Enhancements - Phase 1
 
-- Changed installment calculation to use monthlyAmount from active installments
-- Bar now shows expected monthly installment amount, not just recorded payments
-- Installment bar will appear if there are active installments
+- Add QuickActions widget with buttons for quick transaction, pay installment, add savings
+- Add UpcomingDueDates component showing upcoming due dates for installments and monthly needs
+- Add BudgetProgress component with circular progress ring showing budget vs actual spending
+- Integrate all new components into Dashboard layout
