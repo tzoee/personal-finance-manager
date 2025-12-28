@@ -54,6 +54,18 @@ export function useDashboard() {
     return transactions.filter(tx => tx.date >= monthStart && tx.date <= monthEnd)
   }, [transactions])
 
+  // Previous month summary
+  const previousMonthSummary = useMemo(() => {
+    const income = previousMonthTransactions
+      .filter(tx => tx.type === 'income')
+      .reduce((sum, tx) => sum + tx.amount, 0)
+    const expense = previousMonthTransactions
+      .filter(tx => tx.type === 'expense')
+      .reduce((sum, tx) => sum + tx.amount, 0)
+    
+    return { income, expense, surplus: income - expense }
+  }, [previousMonthTransactions])
+
   // Monthly summary for current month
   const currentMonthSummary = useMemo(() => {
     const income = currentMonthTransactions
@@ -268,6 +280,7 @@ export function useDashboard() {
   return {
     // Summary
     currentMonthSummary,
+    previousMonthSummary,
     netWorth,
     totalAssets,
     totalLiabilities,
@@ -277,6 +290,9 @@ export function useDashboard() {
     expenseBreakdown,
     topExpenseCategories,
     netWorthTrend,
+    
+    // Raw transactions for visualizations
+    currentMonthTransactions,
     
     // Progress
     emergencyFundProgress,

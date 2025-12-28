@@ -12,17 +12,20 @@ import UpcomingDueDates from '../components/dashboard/UpcomingDueDates'
 import BudgetProgress from '../components/dashboard/BudgetProgress'
 import MiniCashflowChart from '../components/dashboard/MiniCashflowChart'
 import MiniNetWorthChart from '../components/dashboard/MiniNetWorthChart'
-import FinancialOverview from '../components/dashboard/FinancialOverview'
 import ActiveCommitments from '../components/dashboard/ActiveCommitments'
 import EmergencyFundProgress from '../components/dashboard/EmergencyFundProgress'
 import InsightCard from '../components/dashboard/InsightCard'
 import TopCategories from '../components/dashboard/TopCategories'
+import ExpenseHeatmap from '../components/dashboard/ExpenseHeatmap'
+import InteractivePieChart from '../components/dashboard/InteractivePieChart'
+import MonthComparisonChart from '../components/dashboard/MonthComparisonChart'
 import FadeIn from '../components/ui/FadeIn'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const {
     currentMonthSummary,
+    previousMonthSummary,
     netWorth,
     monthlyCashflow,
     expenseBreakdown,
@@ -30,6 +33,7 @@ export default function Dashboard() {
     netWorthTrend,
     emergencyFundProgress,
     insights,
+    currentMonthTransactions,
   } = useDashboard()
 
   const { installments } = useInstallmentStore()
@@ -123,28 +127,38 @@ export default function Dashboard() {
             </div>
           </FadeIn>
           
-          {/* Two Column Grid for smaller cards */}
+          {/* Month Comparison & Expense Heatmap */}
           <FadeIn delay={250}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Expense Distribution */}
-              <FinancialOverview 
-                expenseBreakdown={expenseBreakdown} 
+              <MonthComparisonChart
+                currentIncome={currentMonthSummary.income}
+                currentExpense={currentMonthSummary.expense}
+                previousIncome={previousMonthSummary.income}
+                previousExpense={previousMonthSummary.expense}
+              />
+              <ExpenseHeatmap transactions={currentMonthTransactions} />
+            </div>
+          </FadeIn>
+
+          {/* Interactive Pie Chart & Top Categories */}
+          <FadeIn delay={300}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InteractivePieChart 
+                data={expenseBreakdown} 
                 totalExpense={currentMonthSummary.expense}
               />
-              
-              {/* Top Categories */}
               <TopCategories categories={topExpenseCategories} />
             </div>
           </FadeIn>
 
           {/* Emergency Fund */}
-          <FadeIn delay={300}>
+          <FadeIn delay={350}>
             <EmergencyFundProgress status={emergencyFundProgress} />
           </FadeIn>
         </div>
 
         {/* Right Column - Commitments */}
-        <FadeIn delay={350} className="lg:col-span-1">
+        <FadeIn delay={400} className="lg:col-span-1">
           <ActiveCommitments
             installments={installments}
             wishlist={wishlist}
