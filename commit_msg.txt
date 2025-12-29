@@ -1,15 +1,13 @@
-feat(accessibility): Add Phase 7 Accessibility features
+feat: redesign dashboard with simpler layout (Option C)
 
-- Add AccessibleButton: Button with larger touch targets (44px min), loading states, haptic feedback
-- Add AccessibleInput: Input with proper ARIA labels, error states, hints
-- Add SkipLink: Skip to main content link for keyboard navigation
-- Add VisuallyHidden: Screen reader only content component
-- Add useKeyboardNavigation: Hook for keyboard navigation (arrows, escape, enter)
-- Add useFocusTrap: Hook for trapping focus within modals/dialogs
-- Add useRovingTabIndex: Hook for roving tabindex pattern in lists
-- Add useAnnounce: Hook for ARIA live region announcements
-- Add CSS for reduced motion preference support
-- Add CSS for high contrast mode support
-- Add CSS for larger touch targets on touch devices
-- Integrate SkipLink into App.tsx
-- Add main-content id to Layout for skip link target
+- Add HeroSummary component with gradient card showing net worth, income, expense, surplus, and budget progress
+- Add CompactQuickActions with 3 action buttons in a row
+- Add UpcomingList combining installments and monthly needs schedule
+- Add DashboardTabs with 4 tabs: Cashflow, Breakdown, Progress, Trends
+- Add CashflowTab with month comparison and mini bar chart
+- Add BreakdownTab with donut chart and category list
+- Add ProgressTab with streak, achievements, and emergency fund progress
+- Add TrendsTab with net worth line chart
+- Add CollapsibleInsights for expandable insights section
+- Update Dashboard.tsx with new simplified layout
+- All text in Indonesian language
