@@ -11,6 +11,7 @@ import { formatCurrency } from '../../utils/formatters'
 interface TransactionFormProps {
   transaction?: Transaction
   categories: Category[]
+  defaultType?: 'income' | 'expense' | 'transfer'
   onSubmit: (input: TransactionInput) => Promise<{ success: boolean; errors?: string[] }>
   onCancel: () => void
 }
@@ -18,11 +19,12 @@ interface TransactionFormProps {
 export default function TransactionForm({
   transaction,
   categories,
+  defaultType,
   onSubmit,
   onCancel,
 }: TransactionFormProps) {
   const [date, setDate] = useState(transaction?.date || new Date().toISOString().split('T')[0])
-  const [type, setType] = useState<'income' | 'expense' | 'transfer'>(transaction?.type || 'expense')
+  const [type, setType] = useState<'income' | 'expense' | 'transfer'>(transaction?.type || defaultType || 'expense')
   const [amount, setAmount] = useState(transaction?.amount?.toString() || '')
   const [categoryId, setCategoryId] = useState(transaction?.categoryId || '')
   const [subcategoryId, setSubcategoryId] = useState(transaction?.subcategoryId || '')

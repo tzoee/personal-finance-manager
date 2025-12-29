@@ -1,9 +1,12 @@
-feat(dashboard): Add Phase 3 Data Visualization components
+feat(mobile): Add Phase 4 Mobile Experience components
 
-- Add ExpenseHeatmap: Calendar heatmap showing daily expense intensity
-- Add InteractivePieChart: Interactive donut chart for expense breakdown
-- Add MonthComparisonChart: Side-by-side comparison current vs previous month
-- Add Sparkline & SparklineCard: Mini trend charts for compact visualization
-- Update useDashboard hook to provide previousMonthSummary and currentMonthTransactions
-- Integrate all new visualization components into Dashboard layout
-- Replace FinancialOverview with InteractivePieChart for better UX
+- Add BottomSheet: Mobile-friendly modal sliding from bottom with snap points
+- Add SwipeableItem: List items with swipe-to-reveal actions (edit/delete)
+- Add PullToRefresh: Pull down gesture to refresh content
+- Add FloatingActionButton (FAB): Speed dial menu for quick actions
+- Add TouchRipple: Material Design ripple effect on touch
+- Add useHapticFeedback hook: Vibration feedback for touch interactions
+- Add CSS animations: ripple, bounce-subtle, swipe-hint
+- Integrate FAB into Dashboard and Transactions pages
+- Add defaultType prop to TransactionForm for FAB quick actions
+- Hide desktop add button on mobile, show FAB instead

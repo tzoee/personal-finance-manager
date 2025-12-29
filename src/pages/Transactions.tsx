@@ -4,13 +4,14 @@
  */
 
 import { useState, useEffect, useMemo } from 'react'
-import { ArrowLeftRight, Plus } from 'lucide-react'
+import { ArrowLeftRight, Plus, TrendingUp, TrendingDown } from 'lucide-react'
 import { useTransactions } from '../hooks/useTransactions'
 import { useCategoryStore } from '../store/categoryStore'
 import TransactionForm from '../components/transactions/TransactionForm'
 import TransactionList from '../components/transactions/TransactionList'
 import FilterBar from '../components/transactions/FilterBar'
 import MonthlySummaryCard from '../components/transactions/MonthlySummaryCard'
+import FloatingActionButton from '../components/ui/FloatingActionButton'
 import type { Transaction, TransactionInput, TransactionFilters } from '../types'
 
 export default function Transactions() {
@@ -29,6 +30,7 @@ export default function Transactions() {
   const { initialize: initCategories, initialized: catInitialized } = useCategoryStore()
 
   const [showForm, setShowForm] = useState(false)
+  const [formType, setFormType] = useState<'income' | 'expense'>('expense')
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null)
   const [deletingTransaction, setDeletingTransaction] = useState<Transaction | null>(null)
   const [filters, setFilters] = useState<TransactionFilters>({})
@@ -85,8 +87,29 @@ export default function Transactions() {
     setDeletingTransaction(null)
   }
 
+  const handleFABAction = (type: 'income' | 'expense') => {
+    setFormType(type)
+    setShowForm(true)
+  }
+
+  // FAB actions for quick add
+  const fabActions = [
+    {
+      icon: <TrendingUp className="w-5 h-5" />,
+      label: 'Pemasukan',
+      color: 'bg-green-500 hover:bg-green-600',
+      onClick: () => handleFABAction('income'),
+    },
+    {
+      icon: <TrendingDown className="w-5 h-5" />,
+      label: 'Pengeluaran',
+      color: 'bg-red-500 hover:bg-red-600',
+      onClick: () => handleFABAction('expense'),
+    },
+  ]
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 md:pb-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 sm:gap-3">
@@ -95,11 +118,11 @@ export default function Transactions() {
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-600 text-white 
+          className="hidden md:flex items-center gap-2 px-3 sm:px-4 py-2 bg-primary-600 text-white 
                    rounded-lg hover:bg-primary-700 transition-colors text-sm sm:text-base"
         >
           <Plus className="w-4 h-4" />
-          <span className="hidden xs:inline">Tambah</span>
+          <span>Tambah</span>
         </button>
       </div>
 
@@ -121,10 +144,18 @@ export default function Transactions() {
         onDelete={setDeletingTransaction}
       />
 
+      {/* Mobile FAB */}
+      <FloatingActionButton
+        actions={fabActions}
+        position="bottom-right"
+        className="md:hidden"
+      />
+
       {/* Add Transaction Modal */}
       {showForm && (
         <TransactionForm
           categories={categories}
+          defaultType={formType}
           onSubmit={handleAddTransaction}
           onCancel={() => setShowForm(false)}
         />

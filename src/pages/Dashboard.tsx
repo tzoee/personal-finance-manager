@@ -1,4 +1,4 @@
-import { LayoutDashboard } from 'lucide-react'
+import { LayoutDashboard, Plus, Receipt, PiggyBank, CreditCard } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useDashboard } from '../hooks/useDashboard'
 import { useInstallmentStore } from '../store/installmentStore'
@@ -20,6 +20,7 @@ import ExpenseHeatmap from '../components/dashboard/ExpenseHeatmap'
 import InteractivePieChart from '../components/dashboard/InteractivePieChart'
 import MonthComparisonChart from '../components/dashboard/MonthComparisonChart'
 import FadeIn from '../components/ui/FadeIn'
+import FloatingActionButton from '../components/ui/FloatingActionButton'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -62,6 +63,28 @@ export default function Dashboard() {
   const handleAddTransaction = () => navigate('/transactions')
   const handlePayInstallment = () => navigate('/installments')
   const handleAddSavings = () => navigate('/savings')
+
+  // FAB actions for mobile
+  const fabActions = [
+    {
+      icon: <Receipt className="w-5 h-5" />,
+      label: 'Transaksi',
+      color: 'bg-blue-500 hover:bg-blue-600',
+      onClick: handleAddTransaction,
+    },
+    {
+      icon: <CreditCard className="w-5 h-5" />,
+      label: 'Bayar Cicilan',
+      color: 'bg-orange-500 hover:bg-orange-600',
+      onClick: handlePayInstallment,
+    },
+    {
+      icon: <PiggyBank className="w-5 h-5" />,
+      label: 'Setor Tabungan',
+      color: 'bg-green-500 hover:bg-green-600',
+      onClick: handleAddSavings,
+    },
+  ]
 
   return (
     <div className="space-y-4 pb-20 md:pb-6">
@@ -166,6 +189,14 @@ export default function Dashboard() {
           />
         </FadeIn>
       </div>
+
+      {/* Mobile FAB */}
+      <FloatingActionButton
+        icon={<Plus className="w-6 h-6" />}
+        actions={fabActions}
+        position="bottom-right"
+        className="md:hidden"
+      />
     </div>
   )
 }
