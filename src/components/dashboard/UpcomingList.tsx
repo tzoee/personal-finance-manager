@@ -65,7 +65,7 @@ export default function UpcomingList({
     return (
       <div className="card p-4">
         <div className="flex items-center gap-2 mb-3">
-          <Calendar className="w-5 h-5 text-primary-600" />
+          <Calendar className="w-5 h-5 text-teal-600" />
           <h3 className="font-semibold text-gray-900 dark:text-gray-100">Jadwal Pembayaran</h3>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
@@ -79,7 +79,7 @@ export default function UpcomingList({
     <div className="card p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-primary-600" />
+          <Calendar className="w-5 h-5 text-teal-600" />
           <h3 className="font-semibold text-gray-900 dark:text-gray-100">Jadwal Pembayaran</h3>
         </div>
         <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -99,13 +99,13 @@ export default function UpcomingList({
           >
             <div className={`p-2 rounded-lg ${
               item.type === 'installment' 
-                ? 'bg-orange-100 dark:bg-orange-900/30' 
-                : 'bg-blue-100 dark:bg-blue-900/30'
+                ? 'bg-violet-100 dark:bg-violet-900/30' 
+                : 'bg-sky-100 dark:bg-sky-900/30'
             }`}>
               {item.type === 'installment' ? (
-                <CreditCard className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                <CreditCard className="w-4 h-4 text-violet-600 dark:text-violet-400" />
               ) : (
-                <Receipt className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <Receipt className="w-4 h-4 text-sky-600 dark:text-sky-400" />
               )}
             </div>
 

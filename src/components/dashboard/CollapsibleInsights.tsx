@@ -44,7 +44,7 @@ export default function CollapsibleInsights({ insights }: CollapsibleInsightsPro
           <span className="font-medium text-gray-900 dark:text-gray-100">
             Insights
           </span>
-          <span className="px-2 py-0.5 text-xs bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400 rounded-full">
+          <span className="px-2 py-0.5 text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-full">
             {insights.length}
           </span>
         </div>

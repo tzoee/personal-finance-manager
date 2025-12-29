@@ -16,19 +16,19 @@ export default function CompactQuickActions({
       icon: <Plus className="w-5 h-5" />,
       label: 'Transaksi',
       onClick: onAddTransaction,
-      color: 'bg-blue-500 hover:bg-blue-600',
+      color: 'bg-gradient-to-r from-sky-500 to-blue-500 hover:from-sky-600 hover:to-blue-600',
     },
     {
       icon: <CreditCard className="w-5 h-5" />,
       label: 'Cicilan',
       onClick: onPayInstallment,
-      color: 'bg-orange-500 hover:bg-orange-600',
+      color: 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600',
     },
     {
       icon: <PiggyBank className="w-5 h-5" />,
       label: 'Tabungan',
       onClick: onAddSavings,
-      color: 'bg-green-500 hover:bg-green-600',
+      color: 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600',
     },
   ]
 
@@ -38,7 +38,7 @@ export default function CompactQuickActions({
         <button
           key={action.label}
           onClick={action.onClick}
-          className={`flex-1 ${action.color} text-white rounded-xl p-3 flex flex-col items-center gap-1 transition-all active:scale-95`}
+          className={`flex-1 ${action.color} text-white rounded-xl p-3 flex flex-col items-center gap-1 transition-all active:scale-95 shadow-lg shadow-black/10`}
         >
           {action.icon}
           <span className="text-xs font-medium">{action.label}</span>

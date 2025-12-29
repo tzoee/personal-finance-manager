@@ -49,9 +49,9 @@ export default function TrendsTab({ netWorthHistory, currentNetWorth }: TrendsTa
         </div>
         <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium ${
           change > 0 
-            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
             : change < 0
-            ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+            ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
             : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400'
         }`}>
           {change > 0 ? <TrendingUp className="w-4 h-4" /> : 
@@ -107,15 +107,15 @@ export default function TrendsTab({ netWorthHistory, currentNetWorth }: TrendsTa
 
       {/* Assets vs Liabilities */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-          <p className="text-xs text-green-600 dark:text-green-400 mb-1">Total Aset</p>
-          <p className="text-lg font-bold text-green-700 dark:text-green-300">
+        <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
+          <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-1">Total Aset</p>
+          <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
             {formatCurrency(data[data.length - 1]?.assets || 0)}
           </p>
         </div>
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-          <p className="text-xs text-red-600 dark:text-red-400 mb-1">Total Liabilitas</p>
-          <p className="text-lg font-bold text-red-700 dark:text-red-300">
+        <div className="p-3 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 rounded-xl border border-rose-100 dark:border-rose-800/30">
+          <p className="text-xs text-rose-600 dark:text-rose-400 mb-1">Total Liabilitas</p>
+          <p className="text-lg font-bold text-rose-700 dark:text-rose-300">
             {formatCurrency(data[data.length - 1]?.liabilities || 0)}
           </p>
         </div>

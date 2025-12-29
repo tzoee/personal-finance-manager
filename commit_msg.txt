@@ -1,13 +1,11 @@
-feat: redesign dashboard with simpler layout (Option C)
+style: update color palette to modern teal/cyan theme
 
-- Add HeroSummary component with gradient card showing net worth, income, expense, surplus, and budget progress
-- Add CompactQuickActions with 3 action buttons in a row
-- Add UpcomingList combining installments and monthly needs schedule
-- Add DashboardTabs with 4 tabs: Cashflow, Breakdown, Progress, Trends
-- Add CashflowTab with month comparison and mini bar chart
-- Add BreakdownTab with donut chart and category list
-- Add ProgressTab with streak, achievements, and emergency fund progress
-- Add TrendsTab with net worth line chart
-- Add CollapsibleInsights for expandable insights section
-- Update Dashboard.tsx with new simplified layout
-- All text in Indonesian language
+- Change primary color from blue to teal/cyan for fresh modern look
+- Add soft gradient backgrounds with backdrop blur effects
+- Update income colors to emerald/teal gradient
+- Update expense colors to rose/pink gradient  
+- Update installment colors to violet/purple gradient
+- Add subtle borders and shadows for depth
+- Update all dashboard components with new color scheme
+- Add new accent, info color palettes to tailwind config
+- More eye-catching and soft visual appearance

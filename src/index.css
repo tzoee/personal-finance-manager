@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: 59, 130, 246;
-  --color-primary-dark: 37, 99, 235;
+  /* Modern Teal Primary */
+  --color-primary: 20, 184, 166;
+  --color-primary-dark: 13, 148, 136;
 }
 
 @layer base {

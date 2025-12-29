@@ -36,7 +36,7 @@ export default function DashboardTabs({ children }: DashboardTabsProps) {
             onClick={() => setActiveTab(tab.id)}
             className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-3 text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                ? 'text-teal-600 border-b-2 border-teal-500 bg-teal-50 dark:bg-teal-900/20'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >

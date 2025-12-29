@@ -33,28 +33,28 @@ export default function CashflowTab({
     <div className="space-y-4">
       {/* Month Comparison */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+        <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
           <div className="flex items-center gap-2 mb-1">
-            <ArrowUpRight className="w-4 h-4 text-green-600" />
-            <span className="text-xs text-green-700 dark:text-green-400">Pemasukan</span>
+            <ArrowUpRight className="w-4 h-4 text-emerald-500" />
+            <span className="text-xs text-emerald-700 dark:text-emerald-400">Pemasukan</span>
           </div>
-          <p className="text-lg font-bold text-green-700 dark:text-green-400">
+          <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
             {formatCurrency(currentIncome)}
           </p>
-          <p className={`text-xs ${incomeChange >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-xs ${incomeChange >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
             {incomeChange >= 0 ? '+' : ''}{incomeChange.toFixed(1)}% vs bulan lalu
           </p>
         </div>
 
-        <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+        <div className="p-3 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 rounded-xl border border-rose-100 dark:border-rose-800/30">
           <div className="flex items-center gap-2 mb-1">
-            <ArrowDownRight className="w-4 h-4 text-red-600" />
-            <span className="text-xs text-red-700 dark:text-red-400">Pengeluaran</span>
+            <ArrowDownRight className="w-4 h-4 text-rose-500" />
+            <span className="text-xs text-rose-700 dark:text-rose-400">Pengeluaran</span>
           </div>
-          <p className="text-lg font-bold text-red-700 dark:text-red-400">
+          <p className="text-lg font-bold text-rose-600 dark:text-rose-400">
             {formatCurrency(currentExpense)}
           </p>
-          <p className={`text-xs ${expenseChange <= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-xs ${expenseChange <= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
             {expenseChange >= 0 ? '+' : ''}{expenseChange.toFixed(1)}% vs bulan lalu
           </p>
         </div>
@@ -72,17 +72,17 @@ export default function CashflowTab({
             return (
               <div key={item.month} className="flex-1 flex gap-0.5 items-end">
                 <div
-                  className="flex-1 bg-green-400 dark:bg-green-500 rounded-t"
+                  className="flex-1 bg-gradient-to-t from-emerald-500 to-teal-400 rounded-t"
                   style={{ height: `${incomeHeight}%` }}
                   title={`Income: ${formatCurrency(item.income)}`}
                 />
                 <div
-                  className="flex-1 bg-red-400 dark:bg-red-500 rounded-t"
+                  className="flex-1 bg-gradient-to-t from-rose-500 to-pink-400 rounded-t"
                   style={{ height: `${expenseHeight}%` }}
                   title={`Expense: ${formatCurrency(item.expense)}`}
                 />
                 <div
-                  className="flex-1 bg-purple-400 dark:bg-purple-500 rounded-t"
+                  className="flex-1 bg-gradient-to-t from-violet-500 to-purple-400 rounded-t"
                   style={{ height: `${installmentHeight}%` }}
                   title={`Installment: ${formatCurrency(item.installment)}`}
                 />
@@ -102,15 +102,15 @@ export default function CashflowTab({
       {/* Legend */}
       <div className="flex justify-center gap-4 text-xs">
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-green-400 rounded" />
+          <div className="w-3 h-3 bg-gradient-to-r from-emerald-500 to-teal-400 rounded" />
           <span className="text-gray-600 dark:text-gray-400">Pemasukan</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-red-400 rounded" />
+          <div className="w-3 h-3 bg-gradient-to-r from-rose-500 to-pink-400 rounded" />
           <span className="text-gray-600 dark:text-gray-400">Pengeluaran</span>
         </div>
         <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-purple-400 rounded" />
+          <div className="w-3 h-3 bg-gradient-to-r from-violet-500 to-purple-400 rounded" />
           <span className="text-gray-600 dark:text-gray-400">Cicilan</span>
         </div>
       </div>
