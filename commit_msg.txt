@@ -1,12 +1,11 @@
-feat(mobile): Add Phase 4 Mobile Experience components
+feat(personalization): Add Phase 5 Personalization features
 
-- Add BottomSheet: Mobile-friendly modal sliding from bottom with snap points
-- Add SwipeableItem: List items with swipe-to-reveal actions (edit/delete)
-- Add PullToRefresh: Pull down gesture to refresh content
-- Add FloatingActionButton (FAB): Speed dial menu for quick actions
-- Add TouchRipple: Material Design ripple effect on touch
-- Add useHapticFeedback hook: Vibration feedback for touch interactions
-- Add CSS animations: ripple, bounce-subtle, swipe-hint
-- Integrate FAB into Dashboard and Transactions pages
-- Add defaultType prop to TransactionForm for FAB quick actions
-- Hide desktop add button on mobile, show FAB instead
+- Add ThemeColorPicker: 6 theme color options (blue, green, purple, orange, pink, teal)
+- Add UserProfileCard: User name and avatar customization with image upload
+- Add CurrencySettings: Currency selection and display format options
+- Add compact mode toggle for denser UI layout
+- Update AppSettings type with new personalization fields
+- Update settingsStore with setThemeColor and setCompactMode actions
+- Apply theme colors via CSS custom properties
+- Add compact mode CSS styles
+- Integrate all personalization components into Settings page

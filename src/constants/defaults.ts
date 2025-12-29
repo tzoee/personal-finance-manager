@@ -6,9 +6,14 @@ import { generateId } from '../utils/idGenerator'
  */
 export const DEFAULT_SETTINGS: AppSettings = {
   currency: 'IDR',
+  currencyDisplay: 'symbol',
   monthlyLivingCost: 5000000,
   emergencyFundMultiplier: 6,
   darkMode: false,
+  themeColor: 'blue',
+  compactMode: false,
+  userName: '',
+  userAvatar: '',
   schemaVersion: 1,
 }
 

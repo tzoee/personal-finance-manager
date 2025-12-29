@@ -314,11 +314,19 @@ export interface BudgetComparison {
 }
 
 // Settings
+export type ThemeColor = 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'teal'
+export type CurrencyDisplay = 'symbol' | 'code' | 'name'
+
 export interface AppSettings {
   currency: string
+  currencyDisplay: CurrencyDisplay
   monthlyLivingCost: number
   emergencyFundMultiplier: number
   darkMode: boolean
+  themeColor: ThemeColor
+  compactMode: boolean
+  userName?: string
+  userAvatar?: string // base64 or URL
   schemaVersion: number
 }
 

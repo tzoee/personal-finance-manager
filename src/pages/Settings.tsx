@@ -12,15 +12,20 @@ import {
   HardDrive,
   Cloud,
   RefreshCw,
-  Loader2
+  Loader2,
+  Palette,
+  Minimize2
 } from 'lucide-react'
 import { useSettingsStore } from '../store/settingsStore'
 import { useSyncStore } from '../store/syncStore'
 import { useStorage } from '../hooks/useStorage'
 import { formatCurrency } from '../utils/formatters'
+import ThemeColorPicker from '../components/settings/ThemeColorPicker'
+import UserProfileCard from '../components/settings/UserProfileCard'
+import CurrencySettings from '../components/settings/CurrencySettings'
 
 export default function Settings() {
-  const { settings, darkMode, setDarkMode, updateSettings, initialize, initialized } = useSettingsStore()
+  const { settings, darkMode, setDarkMode, setThemeColor, setCompactMode, updateSettings, initialize, initialized } = useSettingsStore()
   const { isSyncing, lastSynced, error: syncError, saveToCloud, loadFromCloud, autoSyncEnabled, setAutoSync } = useSyncStore()
   const { downloadExport, importData, resetData, getStorageInfo } = useStorage()
   
@@ -262,6 +267,63 @@ export default function Settings() {
               }`}
             />
           </button>
+        </div>
+      </div>
+
+      {/* Personalization */}
+      <div className="card p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <Palette className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <h2 className="font-semibold text-gray-900 dark:text-gray-100">Personalisasi</h2>
+        </div>
+
+        <div className="space-y-6">
+          {/* User Profile */}
+          <UserProfileCard
+            userName={settings.userName || ''}
+            userAvatar={settings.userAvatar || ''}
+            onNameChange={(name) => updateSettings({ userName: name })}
+            onAvatarChange={(avatar) => updateSettings({ userAvatar: avatar })}
+          />
+
+          {/* Theme Color */}
+          <ThemeColorPicker
+            value={settings.themeColor || 'blue'}
+            onChange={setThemeColor}
+          />
+
+          {/* Compact Mode */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Minimize2 className="w-5 h-5 text-gray-500" />
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Mode Kompak</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Tampilan lebih padat dengan ukuran font lebih kecil
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setCompactMode(!settings.compactMode)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                settings.compactMode ? 'bg-primary-600' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  settings.compactMode ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Currency Settings */}
+          <CurrencySettings
+            currency={settings.currency}
+            currencyDisplay={settings.currencyDisplay || 'symbol'}
+            onCurrencyChange={(currency) => updateSettings({ currency })}
+            onDisplayChange={(display) => updateSettings({ currencyDisplay: display })}
+          />
         </div>
       </div>
 
