@@ -1,11 +1,13 @@
 import { LayoutDashboard, Plus, Receipt, PiggyBank, CreditCard } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useDashboard } from '../hooks/useDashboard'
 import { useInstallmentStore } from '../store/installmentStore'
 import { useWishlistStore } from '../store/wishlistStore'
 import { useSavingsStore } from '../store/savingsStore'
 import { useMonthlyNeedStore } from '../store/monthlyNeedStore'
 import { useSettingsStore } from '../store/settingsStore'
+import { useGamificationStore } from '../store/gamificationStore'
 import QuickStats from '../components/dashboard/QuickStats'
 import QuickActions from '../components/dashboard/QuickActions'
 import UpcomingDueDates from '../components/dashboard/UpcomingDueDates'
@@ -19,8 +21,12 @@ import TopCategories from '../components/dashboard/TopCategories'
 import ExpenseHeatmap from '../components/dashboard/ExpenseHeatmap'
 import InteractivePieChart from '../components/dashboard/InteractivePieChart'
 import MonthComparisonChart from '../components/dashboard/MonthComparisonChart'
+import StreakCounter from '../components/dashboard/StreakCounter'
+import AchievementShowcase from '../components/dashboard/AchievementShowcase'
+import ProgressMilestones from '../components/dashboard/ProgressMilestones'
 import FadeIn from '../components/ui/FadeIn'
 import FloatingActionButton from '../components/ui/FloatingActionButton'
+import type { Achievement } from '../types'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -42,6 +48,22 @@ export default function Dashboard() {
   const { savings } = useSavingsStore()
   const { needs: monthlyNeeds } = useMonthlyNeedStore()
   const { settings } = useSettingsStore()
+  const { 
+    progress, 
+    initialized: gamificationInitialized, 
+    initialize: initGamification,
+    getUnlockedAchievements,
+    getLockedAchievements,
+  } = useGamificationStore()
+
+  const [recentUnlock, _setRecentUnlock] = useState<Achievement | undefined>()
+
+  // Initialize gamification
+  useEffect(() => {
+    if (!gamificationInitialized) {
+      initGamification()
+    }
+  }, [gamificationInitialized, initGamification])
 
   // Calculate stats for QuickStats
   const activeInstallments = installments.filter(i => i.status === 'active')
@@ -57,6 +79,11 @@ export default function Dashboard() {
         const progress = w.targetPrice > 0 ? (w.currentSaved / w.targetPrice) * 100 : 0
         return sum + progress
       }, 0) / activeWishlist.length
+    : 0
+
+  // Budget progress percentage
+  const budgetProgress = settings.monthlyLivingCost > 0
+    ? Math.min((currentMonthSummary.expense / settings.monthlyLivingCost) * 100, 100)
     : 0
 
   // Quick action handlers
@@ -118,6 +145,28 @@ export default function Dashboard() {
           <InsightCard insights={insights} />
         </FadeIn>
       )}
+
+      {/* Gamification Section */}
+      <FadeIn delay={125}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StreakCounter
+            currentStreak={progress.currentStreak}
+            longestStreak={progress.longestStreak}
+            lastActivityDate={progress.lastActivityDate}
+          />
+          <AchievementShowcase
+            unlockedAchievements={getUnlockedAchievements()}
+            lockedAchievements={getLockedAchievements()}
+            recentUnlock={recentUnlock}
+          />
+          <ProgressMilestones
+            totalTransactions={progress.totalTransactions}
+            totalSaved={totalSaved}
+            currentStreak={progress.currentStreak}
+            monthlyBudgetProgress={100 - budgetProgress}
+          />
+        </div>
+      </FadeIn>
 
       {/* Quick Actions & Due Dates Row */}
       <FadeIn delay={150}>

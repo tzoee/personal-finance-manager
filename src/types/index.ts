@@ -360,3 +360,26 @@ export interface ValidationResult {
   isValid: boolean
   errors: ValidationError[]
 }
+
+// Gamification
+export type AchievementCategory = 'savings' | 'transactions' | 'streak' | 'budget' | 'milestone'
+
+export interface Achievement {
+  id: string
+  name: string
+  description: string
+  icon: string // emoji or icon name
+  category: AchievementCategory
+  requirement: number // threshold to unlock
+  unlockedAt?: string // ISO date when unlocked
+}
+
+export interface UserProgress {
+  totalTransactions: number
+  totalSaved: number
+  currentStreak: number // consecutive days with transactions
+  longestStreak: number
+  lastActivityDate?: string
+  budgetsMet: number // months where all budgets were met
+  achievements: string[] // unlocked achievement IDs
+}

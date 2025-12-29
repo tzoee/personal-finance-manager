@@ -6,6 +6,7 @@
 import { useCallback, useMemo } from 'react'
 import { useTransactionStore } from '../store/transactionStore'
 import { useCategoryStore } from '../store/categoryStore'
+import { useGamificationStore } from '../store/gamificationStore'
 import { validateTransaction } from '../utils/validators'
 import type { Transaction, TransactionInput, TransactionFilters, MonthlySummary } from '../types'
 
@@ -22,6 +23,7 @@ export function useTransactions() {
   } = useTransactionStore()
 
   const { categories, getCategoryById } = useCategoryStore()
+  const { incrementTransactions, updateStreak } = useGamificationStore()
 
   /**
    * Add a new transaction with validation
@@ -38,8 +40,13 @@ export function useTransactions() {
     }
 
     const transaction = await storeAddTransaction(input)
+    
+    // Update gamification stats
+    incrementTransactions()
+    updateStreak(new Date().toISOString())
+    
     return { success: true, transaction }
-  }, [storeAddTransaction])
+  }, [storeAddTransaction, incrementTransactions, updateStreak])
 
   /**
    * Update an existing transaction with validation
