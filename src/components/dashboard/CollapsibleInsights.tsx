@@ -40,11 +40,11 @@ export default function CollapsibleInsights({ insights }: CollapsibleInsightsPro
         className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Lightbulb className="w-5 h-5 text-yellow-500" />
+          <Lightbulb className="w-5 h-5 text-[#FFB173]" />
           <span className="font-medium text-gray-900 dark:text-gray-100">
             Insights
           </span>
-          <span className="px-2 py-0.5 text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded-full">
+          <span className="px-2 py-0.5 text-xs bg-[#FFB173]/30 text-[#CA2851] dark:bg-[#FFB173]/20 dark:text-[#FFB173] rounded-full">
             {insights.length}
           </span>
         </div>

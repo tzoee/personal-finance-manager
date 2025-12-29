@@ -1,11 +1,16 @@
-style: update color palette to modern teal/cyan theme
+style: apply Marple color palette (warm rose-coral-peach-cream)
 
-- Change primary color from blue to teal/cyan for fresh modern look
-- Add soft gradient backgrounds with backdrop blur effects
-- Update income colors to emerald/teal gradient
-- Update expense colors to rose/pink gradient  
-- Update installment colors to violet/purple gradient
-- Add subtle borders and shadows for depth
-- Update all dashboard components with new color scheme
-- Add new accent, info color palettes to tailwind config
-- More eye-catching and soft visual appearance
+Color palette:
+- #CA2851 (Deep Rose) - Primary
+- #FF6766 (Coral) - Secondary  
+- #FFB173 (Peach) - Accent
+- #FFE3B3 (Cream) - Highlight
+
+Changes:
+- Update tailwind.config.js with Marple palette
+- Update CSS variables for primary colors
+- Apply warm gradient to HeroSummary card
+- Update quick action buttons with gradient
+- Update all dashboard tabs with new colors
+- Update charts and progress bars
+- Consistent warm color scheme throughout

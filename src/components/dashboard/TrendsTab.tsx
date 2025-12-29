@@ -49,9 +49,9 @@ export default function TrendsTab({ netWorthHistory, currentNetWorth }: TrendsTa
         </div>
         <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-sm font-medium ${
           change > 0 
-            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+            ? 'bg-[#FFE3B3]/50 text-[#CA2851] dark:bg-[#FFE3B3]/20 dark:text-[#FFB173]'
             : change < 0
-            ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+            ? 'bg-[#CA2851]/10 text-[#CA2851] dark:bg-[#CA2851]/20 dark:text-[#FF6766]'
             : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-400'
         }`}>
           {change > 0 ? <TrendingUp className="w-4 h-4" /> : 
@@ -107,15 +107,15 @@ export default function TrendsTab({ netWorthHistory, currentNetWorth }: TrendsTa
 
       {/* Assets vs Liabilities */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-xl border border-emerald-100 dark:border-emerald-800/30">
-          <p className="text-xs text-emerald-600 dark:text-emerald-400 mb-1">Total Aset</p>
-          <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">
+        <div className="p-3 bg-gradient-to-br from-[#FFE3B3]/30 to-[#FFB173]/20 dark:from-[#FFE3B3]/10 dark:to-[#FFB173]/10 rounded-xl border border-[#FFB173]/30">
+          <p className="text-xs text-[#CA2851] dark:text-[#FFB173] mb-1">Total Aset</p>
+          <p className="text-lg font-bold text-[#CA2851] dark:text-[#FFB173]">
             {formatCurrency(data[data.length - 1]?.assets || 0)}
           </p>
         </div>
-        <div className="p-3 bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-900/20 dark:to-pink-900/20 rounded-xl border border-rose-100 dark:border-rose-800/30">
-          <p className="text-xs text-rose-600 dark:text-rose-400 mb-1">Total Liabilitas</p>
-          <p className="text-lg font-bold text-rose-700 dark:text-rose-300">
+        <div className="p-3 bg-gradient-to-br from-[#CA2851]/10 to-[#FF6766]/10 dark:from-[#CA2851]/20 dark:to-[#FF6766]/20 rounded-xl border border-[#FF6766]/30">
+          <p className="text-xs text-[#CA2851] dark:text-[#FF6766] mb-1">Total Liabilitas</p>
+          <p className="text-lg font-bold text-[#CA2851] dark:text-[#FF6766]">
             {formatCurrency(data[data.length - 1]?.liabilities || 0)}
           </p>
         </div>

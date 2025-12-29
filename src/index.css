@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  /* Modern Teal Primary */
-  --color-primary: 20, 184, 166;
-  --color-primary-dark: 13, 148, 136;
+  /* Marple Palette Primary */
+  --color-primary: 202, 40, 81;
+  --color-primary-dark: 184, 35, 73;
 }
 
 @layer base {

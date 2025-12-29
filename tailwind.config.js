@@ -16,59 +16,85 @@ export default {
     },
     extend: {
       colors: {
-        // Modern Teal/Cyan - Fresh & Professional
+        // Marple Palette - Warm & Eye-catching
         primary: {
-          50: '#f0fdfa',
-          100: '#ccfbf1',
-          200: '#99f6e4',
-          300: '#5eead4',
-          400: '#2dd4bf',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
-          950: '#042f2e',
+          50: '#fef1f4',
+          100: '#fde4ea',
+          200: '#fcccd8',
+          300: '#f9a3b8',
+          400: '#f46d8c',
+          500: '#CA2851', // Main primary
+          600: '#b82349',
+          700: '#9a1d3d',
+          800: '#801a35',
+          900: '#6d1a31',
+          950: '#3d0917',
         },
-        // Soft Emerald for success
+        // Coral - Secondary
+        coral: {
+          50: '#fff1f1',
+          100: '#ffe1e1',
+          200: '#ffc9c8',
+          300: '#ffa3a2',
+          400: '#FF6766', // Main coral
+          500: '#f83b3a',
+          600: '#e51d1c',
+          700: '#c11514',
+          800: '#a01514',
+          900: '#841918',
+          950: '#480707',
+        },
+        // Peach - Accent
+        peach: {
+          50: '#fff8f1',
+          100: '#ffeedd',
+          200: '#ffdcbb',
+          300: '#FFB173', // Main peach
+          400: '#ff9a4d',
+          500: '#fe7c24',
+          600: '#ef6110',
+          700: '#c64a10',
+          800: '#9d3c15',
+          900: '#7e3314',
+          950: '#441708',
+        },
+        // Cream - Highlight
+        cream: {
+          50: '#fffcf5',
+          100: '#FFE3B3', // Main cream
+          200: '#ffd699',
+          300: '#ffc266',
+          400: '#ffab33',
+          500: '#ff9500',
+          600: '#e67a00',
+          700: '#bf5f00',
+          800: '#994a00',
+          900: '#7a3d00',
+          950: '#451f00',
+        },
+        // Success - Soft green
         success: {
-          50: '#ecfdf5',
-          100: '#d1fae5',
-          400: '#34d399',
-          500: '#10b981',
-          600: '#059669',
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
         },
-        // Warm Amber for warnings
+        // Warning - Using peach tones
         warning: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
+          50: '#fff8f1',
+          100: '#ffeedd',
+          400: '#FFB173',
+          500: '#ff9a4d',
+          600: '#ef6110',
         },
-        // Soft Rose for danger/expense
+        // Danger - Using coral/primary tones
         danger: {
-          50: '#fff1f2',
-          100: '#ffe4e6',
-          400: '#fb7185',
-          500: '#f43f5e',
-          600: '#e11d48',
-        },
-        // Soft Violet for accents (installments, savings)
-        accent: {
-          50: '#faf5ff',
-          100: '#f3e8ff',
-          400: '#c084fc',
-          500: '#a855f7',
-          600: '#9333ea',
-        },
-        // Soft Sky for info/secondary
-        info: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
+          50: '#fff1f1',
+          100: '#ffe1e1',
+          400: '#FF6766',
+          500: '#CA2851',
+          600: '#b82349',
         },
       },
       fontFamily: {

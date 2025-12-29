@@ -7,14 +7,14 @@ interface BreakdownTabProps {
 }
 
 const COLORS = [
-  'bg-teal-500',
-  'bg-emerald-500',
-  'bg-amber-500',
-  'bg-violet-500',
-  'bg-rose-500',
-  'bg-sky-500',
-  'bg-fuchsia-500',
-  'bg-orange-500',
+  'bg-[#CA2851]',
+  'bg-[#FF6766]',
+  'bg-[#FFB173]',
+  'bg-[#FFE3B3]',
+  'bg-[#f46d8c]',
+  'bg-[#ffa3a2]',
+  'bg-[#ffc266]',
+  'bg-[#b82349]',
 ]
 
 export default function BreakdownTab({ data, totalExpense }: BreakdownTabProps) {
