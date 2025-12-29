@@ -210,4 +210,44 @@
   .animate-celebrate {
     animation: celebrate 0.5s ease-in-out;
   }
+  
+  /* High contrast focus styles */
+  .focus-visible-ring {
+    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2;
+  }
+  
+  /* Reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .card {
+      border-width: 2px;
+    }
+    
+    .btn {
+      border: 2px solid currentColor;
+    }
+    
+    .input {
+      border-width: 2px;
+    }
+  }
+  
+  /* Larger touch targets for mobile */
+  @media (pointer: coarse) {
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
 }

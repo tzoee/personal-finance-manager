@@ -13,6 +13,7 @@ import Settings from './pages/Settings'
 import Login from './pages/auth/Login'
 import Register from './pages/auth/Register'
 import ProtectedRoute from './components/auth/ProtectedRoute'
+import SkipLink from './components/ui/SkipLink'
 import { useSettingsStore } from './store/settingsStore'
 import { useCategoryStore } from './store/categoryStore'
 import { useTransactionStore } from './store/transactionStore'
@@ -230,6 +231,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <SkipLink targetId="main-content" />
       <Routes>
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
