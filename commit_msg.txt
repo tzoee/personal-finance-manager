@@ -1,16 +1,13 @@
-style: apply Marple color palette (warm rose-coral-peach-cream)
+fix: FAB click issue on mobile and cashflow data display
 
-Color palette:
-- #CA2851 (Deep Rose) - Primary
-- #FF6766 (Coral) - Secondary  
-- #FFB173 (Peach) - Accent
-- #FFE3B3 (Cream) - Highlight
+Bug fixes:
+1. FAB (Floating Action Button) - action buttons now clickable on mobile
+   - Fixed z-index layering (backdrop z-40, FAB z-50)
+   - Separated backdrop from FAB container
+   - Added stopPropagation and setTimeout for reliable navigation
+   - Increased button size from w-10 to w-12 for better touch targets
 
-Changes:
-- Update tailwind.config.js with Marple palette
-- Update CSS variables for primary colors
-- Apply warm gradient to HeroSummary card
-- Update quick action buttons with gradient
-- Update all dashboard tabs with new colors
-- Update charts and progress bars
-- Consistent warm color scheme throughout
+2. Cashflow chart - now shows correct monthly data
+   - Changed from parseISO(getCurrentDate()) to new Date()
+   - Fixed transaction filtering for each month
+   - Previous month data now displays correctly in January

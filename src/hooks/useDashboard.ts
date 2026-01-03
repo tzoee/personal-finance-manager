@@ -19,7 +19,6 @@ import {
   calculateSurplusRate 
 } from '../utils/calculations'
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from 'date-fns'
-import { getCurrentDate } from '../utils/dateUtils'
 
 export function useDashboard() {
   const { transactions } = useTransactionStore()
@@ -37,7 +36,7 @@ export function useDashboard() {
 
   // Current month transactions
   const currentMonthTransactions = useMemo(() => {
-    const today = parseISO(getCurrentDate())
+    const today = new Date()
     const monthStart = format(startOfMonth(today), 'yyyy-MM-dd')
     const monthEnd = format(endOfMonth(today), 'yyyy-MM-dd')
     
@@ -46,7 +45,7 @@ export function useDashboard() {
 
   // Previous month transactions
   const previousMonthTransactions = useMemo(() => {
-    const today = parseISO(getCurrentDate())
+    const today = new Date()
     const prevMonth = subMonths(today, 1)
     const monthStart = format(startOfMonth(prevMonth), 'yyyy-MM-dd')
     const monthEnd = format(endOfMonth(prevMonth), 'yyyy-MM-dd')
@@ -86,7 +85,7 @@ export function useDashboard() {
   // Cashflow data for last 6 months
   const monthlyCashflow = useMemo((): CashflowData[] => {
     const result: CashflowData[] = []
-    const today = parseISO(getCurrentDate())
+    const today = new Date() // Use actual current date
 
     for (let i = 5; i >= 0; i--) {
       const targetDate = subMonths(today, i)
@@ -94,7 +93,11 @@ export function useDashboard() {
       const monthStart = format(startOfMonth(targetDate), 'yyyy-MM-dd')
       const monthEnd = format(endOfMonth(targetDate), 'yyyy-MM-dd')
 
-      const monthTx = transactions.filter(tx => tx.date >= monthStart && tx.date <= monthEnd)
+      // Filter transactions for this specific month
+      const monthTx = transactions.filter(tx => {
+        const txDate = tx.date
+        return txDate >= monthStart && txDate <= monthEnd
+      })
       
       const income = monthTx
         .filter(tx => tx.type === 'income')
@@ -104,13 +107,12 @@ export function useDashboard() {
         .reduce((sum, tx) => sum + tx.amount, 0)
 
       // Calculate installment amount for this month
-      // Use monthlyAmount from active installments that started before or during this month
       const installmentAmount = installments
         .filter(inst => {
-          // Check if installment is active or was active during this month
+          if (inst.status !== 'active') return false
           const instStartDate = inst.startDate
           // Installment applies if it started before or during this month
-          return instStartDate <= monthEnd && inst.status === 'active'
+          return instStartDate <= monthEnd
         })
         .reduce((sum, inst) => sum + inst.monthlyAmount, 0)
 
@@ -164,7 +166,7 @@ export function useDashboard() {
   // Net worth history for last 6 months
   const netWorthTrend = useMemo((): NetWorthHistory[] => {
     const result: NetWorthHistory[] = []
-    const today = parseISO(getCurrentDate())
+    const today = new Date()
 
     for (let i = 5; i >= 0; i--) {
       const targetDate = subMonths(today, i)
