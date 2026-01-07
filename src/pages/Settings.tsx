@@ -14,10 +14,18 @@ import {
   RefreshCw,
   Loader2,
   Palette,
-  Minimize2
+  Minimize2,
+  LogIn,
+  LogOut,
+  Mail,
+  Lock,
+  UserPlus,
+  Check,
+  AlertCircle
 } from 'lucide-react'
 import { useSettingsStore } from '../store/settingsStore'
 import { useSyncStore } from '../store/syncStore'
+import { useAuthStore } from '../store/authStore'
 import { useStorage } from '../hooks/useStorage'
 import { formatCurrency } from '../utils/formatters'
 import ThemeColorPicker from '../components/settings/ThemeColorPicker'
@@ -27,6 +35,7 @@ import CurrencySettings from '../components/settings/CurrencySettings'
 export default function Settings() {
   const { settings, darkMode, setDarkMode, setThemeColor, setCompactMode, updateSettings, initialize, initialized } = useSettingsStore()
   const { isSyncing, lastSynced, error: syncError, saveToCloud, loadFromCloud, autoSyncEnabled, setAutoSync } = useSyncStore()
+  const { user, loading: authLoading, error: authError, signIn, signUp, signOut, clearError: clearAuthError, initialized: authInitialized, initialize: initAuth } = useAuthStore()
   const { downloadExport, importData, resetData, getStorageInfo } = useStorage()
   
   const [importMode, setImportMode] = useState<'merge' | 'replace'>('merge')
@@ -37,6 +46,13 @@ export default function Settings() {
   const [monthlyLivingCost, setMonthlyLivingCost] = useState(settings.monthlyLivingCost.toString())
   const [emergencyMultiplier, setEmergencyMultiplier] = useState(settings.emergencyFundMultiplier.toString())
   
+  // Auth form state
+  const [authView, setAuthView] = useState<'status' | 'login' | 'register'>('status')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [authMessage, setAuthMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -46,11 +62,52 @@ export default function Settings() {
   }, [initialized, initialize])
 
   useEffect(() => {
+    if (!authInitialized) {
+      initAuth()
+    }
+  }, [authInitialized, initAuth])
+
+  useEffect(() => {
     setMonthlyLivingCost(settings.monthlyLivingCost.toString())
     setEmergencyMultiplier(settings.emergencyFundMultiplier.toString())
   }, [settings])
 
   const storageInfo = getStorageInfo()
+
+  // Auth handlers
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthMessage(null)
+    const result = await signIn(email, password)
+    if (result.success) {
+      setAuthView('status')
+      setEmail('')
+      setPassword('')
+      setAuthMessage({ type: 'success', text: 'Berhasil masuk!' })
+    }
+  }
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAuthMessage(null)
+    if (password !== confirmPassword) {
+      setAuthMessage({ type: 'error', text: 'Password tidak cocok' })
+      return
+    }
+    const result = await signUp(email, password)
+    if (result.success) {
+      setAuthView('status')
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
+      setAuthMessage({ type: 'success', text: 'Akun berhasil dibuat! Cek email untuk verifikasi.' })
+    }
+  }
+
+  const handleLogout = async () => {
+    await signOut()
+    setAuthMessage(null)
+  }
 
   const handleSaveToCloud = async () => {
     setSyncMessage(null)
@@ -163,80 +220,294 @@ export default function Settings() {
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">Sinkronisasi Cloud</h2>
         </div>
 
-        <div className="space-y-4">
-          {/* Sync Status */}
-          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-            <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Status</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {lastSynced 
-                  ? `Terakhir sync: ${new Date(lastSynced).toLocaleString('id-ID')}`
-                  : 'Belum pernah sync'
-                }
-              </p>
-            </div>
-            {isSyncing && <Loader2 className="w-4 h-4 animate-spin text-[#CA2851]" />}
+        {/* Auth Section */}
+        {!user ? (
+          <div className="space-y-4">
+            {authView === 'status' && (
+              <>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Masuk untuk menyimpan data ke cloud dan akses dari device lain.
+                </p>
+                
+                {authMessage && (
+                  <div className={`p-3 rounded-lg flex items-start gap-2 ${
+                    authMessage.type === 'success' ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                  }`}>
+                    {authMessage.type === 'success' ? <Check className="w-4 h-4 mt-0.5" /> : <AlertCircle className="w-4 h-4 mt-0.5" />}
+                    <span className="text-sm">{authMessage.text}</span>
+                  </div>
+                )}
+                
+                <button
+                  onClick={() => { setAuthView('login'); clearAuthError() }}
+                  className="btn btn-primary w-full flex items-center justify-center gap-2"
+                >
+                  <LogIn className="w-4 h-4" />
+                  Masuk / Daftar
+                </button>
+              </>
+            )}
+
+            {authView === 'login' && (
+              <form onSubmit={handleLogin} className="space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">Masuk</h3>
+                  <button
+                    type="button"
+                    onClick={() => { setAuthView('status'); clearAuthError() }}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Batal
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="input pl-10 w-full"
+                      placeholder="email@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="input pl-10 w-full"
+                      placeholder="••••••••"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
+
+                {authError && (
+                  <p className="text-sm text-red-500 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {authError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="btn btn-primary w-full flex items-center justify-center gap-2"
+                >
+                  {authLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
+                  Masuk
+                </button>
+
+                <p className="text-sm text-center text-gray-500">
+                  Belum punya akun?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setAuthView('register'); clearAuthError() }}
+                    className="text-[#CA2851] hover:underline"
+                  >
+                    Daftar
+                  </button>
+                </p>
+              </form>
+            )}
+
+            {authView === 'register' && (
+              <form onSubmit={handleRegister} className="space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100">Daftar Akun</h3>
+                  <button
+                    type="button"
+                    onClick={() => { setAuthView('status'); clearAuthError() }}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Batal
+                  </button>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="input pl-10 w-full"
+                      placeholder="email@example.com"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="input pl-10 w-full"
+                      placeholder="Minimal 6 karakter"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">Konfirmasi Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="input pl-10 w-full"
+                      placeholder="Ulangi password"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                </div>
+
+                {password !== confirmPassword && confirmPassword && (
+                  <p className="text-sm text-red-500">Password tidak cocok</p>
+                )}
+
+                {authError && (
+                  <p className="text-sm text-red-500 flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    {authError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={authLoading || password !== confirmPassword}
+                  className="btn btn-primary w-full flex items-center justify-center gap-2"
+                >
+                  {authLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                  Daftar
+                </button>
+
+                <p className="text-sm text-center text-gray-500">
+                  Sudah punya akun?{' '}
+                  <button
+                    type="button"
+                    onClick={() => { setAuthView('login'); clearAuthError() }}
+                    className="text-[#CA2851] hover:underline"
+                  >
+                    Masuk
+                  </button>
+                </p>
+              </form>
+            )}
           </div>
-
-          {syncError && (
-            <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
-              <p className="text-sm text-red-600 dark:text-red-400">{syncError}</p>
+        ) : (
+          <div className="space-y-4">
+            {/* Logged in user info */}
+            <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-600 dark:text-green-400" />
+                <div>
+                  <p className="text-sm font-medium text-green-800 dark:text-green-200">Terhubung</p>
+                  <p className="text-xs text-green-600 dark:text-green-400">{user.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-sm text-gray-500 hover:text-red-500 flex items-center gap-1"
+              >
+                <LogOut className="w-4 h-4" />
+                Keluar
+              </button>
             </div>
-          )}
 
-          {/* Auto Sync Toggle */}
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Auto Sync</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Simpan otomatis ke cloud saat ada perubahan
-              </p>
+            {/* Sync Status */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Status Sync</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {lastSynced 
+                    ? `Terakhir: ${new Date(lastSynced).toLocaleString('id-ID')}`
+                    : 'Belum pernah sync'
+                  }
+                </p>
+              </div>
+              {isSyncing && <Loader2 className="w-4 h-4 animate-spin text-[#CA2851]" />}
             </div>
-            <button
-              onClick={() => setAutoSync(!autoSyncEnabled)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                autoSyncEnabled ? 'bg-[#CA2851]' : 'bg-gray-300'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  autoSyncEnabled ? 'translate-x-6' : 'translate-x-1'
+
+            {syncError && (
+              <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                <p className="text-sm text-red-600 dark:text-red-400">{syncError}</p>
+              </div>
+            )}
+
+            {/* Auto Sync Toggle */}
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Auto Sync</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Simpan otomatis ke cloud saat ada perubahan
+                </p>
+              </div>
+              <button
+                onClick={() => setAutoSync(!autoSyncEnabled)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  autoSyncEnabled ? 'bg-[#CA2851]' : 'bg-gray-300'
                 }`}
-              />
-            </button>
-          </div>
-
-          {/* Sync Message */}
-          {syncMessage && (
-            <div className={`p-3 rounded-lg text-sm ${
-              syncMessage.type === 'success' 
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-            }`}>
-              {syncMessage.message}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    autoSyncEnabled ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
             </div>
-          )}
 
-          {/* Manual Sync Buttons */}
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={handleSaveToCloud}
-              disabled={isSyncing}
-              className="btn btn-primary flex items-center justify-center gap-2"
-            >
-              {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-              Simpan ke Cloud
-            </button>
-            <button
-              onClick={handleLoadFromCloud}
-              disabled={isSyncing}
-              className="btn btn-secondary flex items-center justify-center gap-2"
-            >
-              {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-              Muat dari Cloud
-            </button>
+            {/* Sync Message */}
+            {syncMessage && (
+              <div className={`p-3 rounded-lg text-sm ${
+                syncMessage.type === 'success' 
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+              }`}>
+                {syncMessage.message}
+              </div>
+            )}
+
+            {/* Manual Sync Buttons */}
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                onClick={handleSaveToCloud}
+                disabled={isSyncing}
+                className="btn btn-primary flex items-center justify-center gap-2"
+              >
+                {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                Upload
+              </button>
+              <button
+                onClick={handleLoadFromCloud}
+                disabled={isSyncing}
+                className="btn btn-secondary flex items-center justify-center gap-2"
+              >
+                {isSyncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                Download
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Dark Mode */}

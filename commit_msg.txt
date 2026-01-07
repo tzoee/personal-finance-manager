@@ -1,9 +1,7 @@
-feat: Update net worth calculation to include all financial data
+feat: Add Supabase authentication to Cloud Sync
 
-- Net worth now includes:
-  - Asset net worth (from Assets page)
-  - Transaction balance (all-time income - expense)
-  - Total savings (sum of all deposits)
-  - Remaining installments (as liability)
-- Added breakdown view in HeroSummary with toggle
-- Shows detailed breakdown: Aset Bersih, Saldo Transaksi, Total Tabungan, Sisa Cicilan
+- Added authStore for managing user authentication
+- Updated Settings page with login/register forms
+- Users can now sign in to sync data across devices
+- Cloud sync only available when logged in
+- Added signInWithEmail and signUpWithEmail aliases for existing auth pages
