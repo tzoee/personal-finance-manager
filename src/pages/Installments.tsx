@@ -75,13 +75,13 @@ export default function Installments() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <CreditCard className="w-8 h-8 text-primary-600" />
+          <CreditCard className="w-8 h-8 text-[#CA2851]" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Cicilan</h1>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white 
-                   rounded-lg hover:bg-primary-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#CA2851] to-[#FF6766] text-white 
+                   rounded-lg hover:from-[#b82349] hover:to-[#e55a59] transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Tambah</span>
@@ -114,7 +114,7 @@ export default function Installments() {
           onClick={() => setShowPaidOff(false)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             !showPaidOff
-              ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+              ? 'bg-[#CA2851]/10 text-[#CA2851] dark:bg-[#CA2851]/20 dark:text-[#FF6766]'
               : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
           }`}
         >
@@ -124,7 +124,7 @@ export default function Installments() {
           onClick={() => setShowPaidOff(true)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             showPaidOff
-              ? 'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'
+              ? 'bg-[#CA2851]/10 text-[#CA2851] dark:bg-[#CA2851]/20 dark:text-[#FF6766]'
               : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
           }`}
         >

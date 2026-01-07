@@ -1,13 +1,11 @@
-fix: FAB click issue on mobile and cashflow data display
+Apply Marple color palette consistently across all pages
 
-Bug fixes:
-1. FAB (Floating Action Button) - action buttons now clickable on mobile
-   - Fixed z-index layering (backdrop z-40, FAB z-50)
-   - Separated backdrop from FAB container
-   - Added stopPropagation and setTimeout for reliable navigation
-   - Increased button size from w-10 to w-12 for better touch targets
-
-2. Cashflow chart - now shows correct monthly data
-   - Changed from parseISO(getCurrentDate()) to new Date()
-   - Fixed transaction filtering for each month
-   - Previous month data now displays correctly in January
+- Update Transactions page with Marple colors
+- Update Installments page with Marple colors and tabs
+- Update MonthlyNeeds page with Marple colors
+- Update Wishlist page with Marple colors
+- Update Settings page with Marple colors for all sections
+- Update Assets page with Marple colors and tabs
+- Update Navigation sidebar and mobile nav with Marple colors
+- Replace all primary-600/primary-700 with #CA2851/#FF6766 gradient
+- Update toggle switches to use Marple primary color

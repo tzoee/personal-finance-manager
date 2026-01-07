@@ -124,7 +124,7 @@ export default function MonthlyNeeds() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Receipt className="w-8 h-8 text-primary-600" />
+          <Receipt className="w-8 h-8 text-[#CA2851]" />
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Kebutuhan Bulanan</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">{currentMonth}</p>
@@ -132,8 +132,8 @@ export default function MonthlyNeeds() {
         </div>
         <button
           onClick={() => { resetForm(); setShowForm(true); }}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white 
-                   rounded-lg hover:bg-primary-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#CA2851] to-[#FF6766] text-white 
+                   rounded-lg hover:from-[#b82349] hover:to-[#e55a59] transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span className="hidden sm:inline">Tambah</span>
@@ -208,7 +208,7 @@ export default function MonthlyNeeds() {
                         {need.name}
                       </h3>
                       {need.recurrencePeriod && need.recurrencePeriod !== 'forever' && (
-                        <span className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded flex items-center gap-1">
+                        <span className="px-1.5 py-0.5 text-xs bg-[#FFB173]/20 text-[#CA2851] dark:bg-[#FFB173]/30 dark:text-[#FFB173] rounded flex items-center gap-1">
                           <RefreshCw className="w-3 h-3" />
                           {need.recurrenceLabel}
                         </span>

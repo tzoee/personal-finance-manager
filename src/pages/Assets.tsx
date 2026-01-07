@@ -60,12 +60,12 @@ export default function Assets() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <PiggyBank className="w-8 h-8 text-primary-600" />
+          <PiggyBank className="w-8 h-8 text-[#CA2851]" />
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Aset & Net Worth</h1>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="btn btn-primary flex items-center gap-2"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#CA2851] to-[#FF6766] text-white rounded-lg hover:from-[#b82349] hover:to-[#e55a59] transition-colors"
         >
           <Plus className="w-4 h-4" />
           Tambah
@@ -84,7 +84,7 @@ export default function Assets() {
             onClick={() => setActiveTab('assets')}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
               activeTab === 'assets'
-                ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                ? 'text-[#CA2851] border-b-2 border-[#CA2851] bg-[#CA2851]/5 dark:bg-[#CA2851]/10'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
           >
@@ -95,7 +95,7 @@ export default function Assets() {
             onClick={() => setActiveTab('liabilities')}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
               activeTab === 'liabilities'
-                ? 'text-primary-600 border-b-2 border-primary-600 bg-primary-50 dark:bg-primary-900/20'
+                ? 'text-[#CA2851] border-b-2 border-[#CA2851] bg-[#CA2851]/5 dark:bg-[#CA2851]/10'
                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
             }`}
           >

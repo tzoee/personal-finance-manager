@@ -43,8 +43,8 @@ export default function Navigation() {
       <aside className="hidden md:flex md:flex-col md:w-64 md:fixed md:inset-y-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
         <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
           <div className="flex items-center flex-shrink-0 px-4 mb-6">
-            <div className="p-2 bg-primary-100 dark:bg-primary-900 rounded-lg">
-              <PiggyBank className="w-8 h-8 text-primary-600 dark:text-primary-400" />
+            <div className="p-2 bg-gradient-to-br from-[#CA2851] to-[#FF6766] rounded-lg">
+              <PiggyBank className="w-8 h-8 text-white" />
             </div>
             <span className="ml-3 text-xl font-bold text-gray-900 dark:text-gray-100">
               FinanceApp
@@ -58,7 +58,7 @@ export default function Navigation() {
                 className={({ isActive }) =>
                   `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300'
+                      ? 'bg-[#CA2851]/10 text-[#CA2851] dark:bg-[#CA2851]/20 dark:text-[#FF6766]'
                       : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                   }`
                 }
@@ -97,7 +97,7 @@ export default function Navigation() {
                   className={({ isActive }) =>
                     `flex flex-col items-center p-3 rounded-xl transition-colors ${
                       isActive
-                        ? 'bg-primary-50 text-primary-600 dark:bg-primary-900/50 dark:text-primary-400'
+                        ? 'bg-[#CA2851]/10 text-[#CA2851] dark:bg-[#CA2851]/20 dark:text-[#FF6766]'
                         : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
                     }`
                   }
@@ -121,7 +121,7 @@ export default function Navigation() {
               className={({ isActive }) =>
                 `flex flex-col items-center py-1.5 text-xs font-medium rounded-lg transition-colors ${
                   isActive
-                    ? 'text-primary-600 dark:text-primary-400'
+                    ? 'text-[#CA2851] dark:text-[#FF6766]'
                     : 'text-gray-500 dark:text-gray-400'
                 }`
               }
@@ -135,7 +135,7 @@ export default function Navigation() {
             onClick={() => setShowMoreMenu(true)}
             className={`flex flex-col items-center py-1.5 text-xs font-medium rounded-lg transition-colors ${
               isMoreActive || showMoreMenu
-                ? 'text-primary-600 dark:text-primary-400'
+                ? 'text-[#CA2851] dark:text-[#FF6766]'
                 : 'text-gray-500 dark:text-gray-400'
             }`}
           >

@@ -137,7 +137,7 @@ export default function Settings() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <SettingsIcon className="w-8 h-8 text-primary-600" />
+        <SettingsIcon className="w-8 h-8 text-[#CA2851]" />
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengaturan</h1>
       </div>
 
@@ -159,7 +159,7 @@ export default function Settings() {
       {/* Cloud Sync */}
       <div className="card p-4">
         <div className="flex items-center gap-3 mb-4">
-          <Cloud className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <Cloud className="w-5 h-5 text-[#CA2851] dark:text-[#FF6766]" />
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">Sinkronisasi Cloud</h2>
         </div>
 
@@ -175,7 +175,7 @@ export default function Settings() {
                 }
               </p>
             </div>
-            {isSyncing && <Loader2 className="w-4 h-4 animate-spin text-primary-600" />}
+            {isSyncing && <Loader2 className="w-4 h-4 animate-spin text-[#CA2851]" />}
           </div>
 
           {syncError && (
@@ -195,7 +195,7 @@ export default function Settings() {
             <button
               onClick={() => setAutoSync(!autoSyncEnabled)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                autoSyncEnabled ? 'bg-primary-600' : 'bg-gray-300'
+                autoSyncEnabled ? 'bg-[#CA2851]' : 'bg-gray-300'
               }`}
             >
               <span
@@ -244,9 +244,9 @@ export default function Settings() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {darkMode ? (
-              <Moon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <Moon className="w-5 h-5 text-[#CA2851] dark:text-[#FF6766]" />
             ) : (
-              <Sun className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+              <Sun className="w-5 h-5 text-[#CA2851] dark:text-[#FF6766]" />
             )}
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">Mode Gelap</p>
@@ -258,7 +258,7 @@ export default function Settings() {
           <button
             onClick={() => setDarkMode(!darkMode)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              darkMode ? 'bg-primary-600' : 'bg-gray-300'
+              darkMode ? 'bg-[#CA2851]' : 'bg-gray-300'
             }`}
           >
             <span
@@ -273,7 +273,7 @@ export default function Settings() {
       {/* Personalization */}
       <div className="card p-4">
         <div className="flex items-center gap-3 mb-4">
-          <Palette className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <Palette className="w-5 h-5 text-[#CA2851] dark:text-[#FF6766]" />
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">Personalisasi</h2>
         </div>
 
@@ -306,7 +306,7 @@ export default function Settings() {
             <button
               onClick={() => setCompactMode(!settings.compactMode)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                settings.compactMode ? 'bg-primary-600' : 'bg-gray-300'
+                settings.compactMode ? 'bg-[#CA2851]' : 'bg-gray-300'
               }`}
             >
               <span
@@ -330,7 +330,7 @@ export default function Settings() {
       {/* Emergency Fund Settings */}
       <div className="card p-4">
         <div className="flex items-center gap-3 mb-4">
-          <Shield className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <Shield className="w-5 h-5 text-[#CA2851] dark:text-[#FF6766]" />
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">Dana Darurat</h2>
         </div>
 
@@ -382,7 +382,7 @@ export default function Settings() {
       {/* Backup & Restore */}
       <div className="card p-4">
         <div className="flex items-center gap-3 mb-4">
-          <Database className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <Database className="w-5 h-5 text-[#CA2851] dark:text-[#FF6766]" />
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">Backup & Restore</h2>
         </div>
 
@@ -439,7 +439,7 @@ export default function Settings() {
       {/* Storage Info */}
       <div className="card p-4">
         <div className="flex items-center gap-3 mb-4">
-          <HardDrive className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <HardDrive className="w-5 h-5 text-[#CA2851] dark:text-[#FF6766]" />
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">Informasi Penyimpanan</h2>
         </div>
 

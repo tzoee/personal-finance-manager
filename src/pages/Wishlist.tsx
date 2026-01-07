@@ -67,7 +67,7 @@ export default function Wishlist() {
         <div className="flex items-center gap-2">
           <h1 className="text-base font-bold text-gray-900 dark:text-gray-100">Wishlist</h1>
           {stats.totalItems > 0 && (
-            <span className="text-[10px] px-1.5 py-0.5 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded">
+            <span className="text-[10px] px-1.5 py-0.5 bg-[#CA2851]/10 dark:bg-[#CA2851]/20 text-[#CA2851] dark:text-[#FF6766] rounded">
               {stats.overallProgress.toFixed(0)}%
             </span>
           )}
@@ -75,13 +75,13 @@ export default function Wishlist() {
         <div className="flex items-center gap-1">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`p-1.5 rounded ${showFilters || categoryFilter || priorityFilter ? 'bg-primary-100 dark:bg-primary-900/30' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+            className={`p-1.5 rounded ${showFilters || categoryFilter || priorityFilter ? 'bg-[#CA2851]/10 dark:bg-[#CA2851]/20' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
           >
             <Filter className="w-4 h-4 text-gray-600 dark:text-gray-400" />
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center gap-1 px-2 py-1 bg-primary-600 text-white rounded text-xs font-medium hover:bg-primary-700"
+            className="flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-[#CA2851] to-[#FF6766] text-white rounded text-xs font-medium hover:from-[#b82349] hover:to-[#e55a59]"
           >
             <Plus className="w-3.5 h-3.5" />
             Tambah
@@ -143,7 +143,7 @@ export default function Wishlist() {
                     <div className="flex items-center gap-2 mt-0.5">
                       <div className="flex-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full ${isBought ? 'bg-green-500' : isComplete ? 'bg-primary-500' : item.progress >= 50 ? 'bg-amber-500' : 'bg-gray-400'}`}
+                          className={`h-full ${isBought ? 'bg-green-500' : isComplete ? 'bg-[#CA2851]' : item.progress >= 50 ? 'bg-[#FFB173]' : 'bg-gray-400'}`}
                           style={{ width: `${Math.min(item.progress, 100)}%` }}
                         />
                       </div>
