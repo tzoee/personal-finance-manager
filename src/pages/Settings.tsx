@@ -83,7 +83,8 @@ export default function Settings() {
       setAuthView('status')
       setEmail('')
       setPassword('')
-      setAuthMessage({ type: 'success', text: 'Berhasil masuk!' })
+      setAuthMessage({ type: 'success', text: 'Berhasil masuk! Memuat data...' })
+      // Page will reload automatically from authStore
     }
   }
 

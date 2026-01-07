@@ -5,6 +5,7 @@
 
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
+import { cloudSyncService } from '../services/cloudSync'
 import type { User, Session } from '@supabase/supabase-js'
 
 interface AuthState {
@@ -42,6 +43,21 @@ export const useAuthStore = create<AuthState>((set) => ({
         session,
         initialized: true,
       })
+
+      // If user is logged in, check if we should sync from cloud
+      if (session?.user) {
+        const hasLocalData = localStorage.getItem('pfm_transactions') !== null
+        
+        // If no local data but user is logged in, sync from cloud
+        if (!hasLocalData) {
+          console.log('[Auth] No local data found, syncing from cloud...')
+          const syncResult = await cloudSyncService.loadFromCloud()
+          if (syncResult.success && syncResult.hasData) {
+            console.log('[Auth] Cloud data loaded on init')
+            // Don't reload here, let the app load naturally
+          }
+        }
+      }
 
       // Listen for auth changes
       supabase.auth.onAuthStateChange((_event, session) => {
@@ -104,6 +120,15 @@ export const useAuthStore = create<AuthState>((set) => ({
         loading: false,
       })
 
+      // Auto-sync from cloud after login
+      console.log('[Auth] Login successful, syncing from cloud...')
+      const syncResult = await cloudSyncService.loadFromCloud()
+      if (syncResult.success && syncResult.hasData) {
+        console.log('[Auth] Cloud data loaded, refreshing page...')
+        // Refresh page to load new data into stores
+        setTimeout(() => window.location.reload(), 500)
+      }
+
       return { success: true }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Gagal masuk'
@@ -150,6 +175,15 @@ export const useAuthStore = create<AuthState>((set) => ({
         session: data.session,
         loading: false,
       })
+
+      // Auto-sync from cloud after login
+      console.log('[Auth] Login successful, syncing from cloud...')
+      const syncResult = await cloudSyncService.loadFromCloud()
+      if (syncResult.success && syncResult.hasData) {
+        console.log('[Auth] Cloud data loaded, refreshing page...')
+        // Refresh page to load new data into stores
+        setTimeout(() => window.location.reload(), 500)
+      }
 
       return { success: true }
     } catch (error) {

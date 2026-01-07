@@ -1,7 +1,6 @@
-feat: Add Supabase authentication to Cloud Sync
+fix: Auto-sync from cloud on login
 
-- Added authStore for managing user authentication
-- Updated Settings page with login/register forms
-- Users can now sign in to sync data across devices
-- Cloud sync only available when logged in
-- Added signInWithEmail and signUpWithEmail aliases for existing auth pages
+- When user logs in, automatically download data from cloud
+- Page reloads after cloud data is loaded to refresh stores
+- Added logging for sync operations
+- Fixed unused variable warning

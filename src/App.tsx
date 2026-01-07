@@ -129,24 +129,30 @@ function App() {
           return
         }
         
-        // Try to load from cloud
+        // First initialize stores to get local data
+        await initializeStores()
+        
+        // Then try to load from cloud
+        console.log('[App] User logged in, checking cloud data...')
         const result = await loadFromCloud()
         
         if (result.success && result.hasData) {
           // Data was loaded from cloud - set flag and reload to pick up fresh data
+          console.log('[App] Cloud data found, reloading...')
           sessionStorage.setItem('pfm_just_synced', 'true')
           window.location.reload()
           return
         }
         
-        // No cloud data or load failed - just initialize local stores
-        await initializeStores()
+        // No cloud data or load failed - continue with local data
+        console.log('[App] No cloud data, using local data')
         setCloudSyncDone(true)
         setLoading(false)
       } else if (!user && authInitialized) {
         // Not logged in, just initialize stores
         sessionStorage.removeItem('pfm_just_synced')
         await initializeStores()
+        setCloudSyncDone(true)
         setLoading(false)
       }
     }
