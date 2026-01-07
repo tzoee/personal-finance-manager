@@ -1,5 +1,13 @@
-import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight } from 'lucide-react'
+import { useState } from 'react'
+import { TrendingUp, TrendingDown, Wallet, ArrowUpRight, ArrowDownRight, ChevronDown, ChevronUp, Building2, PiggyBank, CreditCard, Receipt } from 'lucide-react'
 import { formatCurrency } from '../../utils/formatters'
+
+interface NetWorthBreakdown {
+  assetNetWorth: number
+  transactionBalance: number
+  totalSavings: number
+  remainingInstallments: number
+}
 
 interface HeroSummaryProps {
   netWorth: number
@@ -7,6 +15,7 @@ interface HeroSummaryProps {
   expense: number
   surplus: number
   budgetTotal: number
+  netWorthBreakdown?: NetWorthBreakdown
 }
 
 export default function HeroSummary({
@@ -15,17 +24,72 @@ export default function HeroSummary({
   expense,
   surplus,
   budgetTotal,
+  netWorthBreakdown,
 }: HeroSummaryProps) {
+  const [showBreakdown, setShowBreakdown] = useState(false)
   const isPositiveSurplus = surplus >= 0
   const budgetPercentage = budgetTotal > 0 ? Math.min((expense / budgetTotal) * 100, 100) : 0
   const isOverBudget = budgetPercentage > 100
 
   return (
     <div className="card p-5 bg-gradient-to-br from-[#CA2851] via-[#FF6766] to-[#FFB173] text-white">
-      <div className="text-center mb-6">
+      <div className="text-center mb-4">
         <p className="text-white/80 text-sm mb-1">Total Kekayaan Bersih</p>
         <p className="text-3xl font-bold">{formatCurrency(netWorth)}</p>
+        
+        {/* Toggle breakdown button */}
+        {netWorthBreakdown && (
+          <button
+            onClick={() => setShowBreakdown(!showBreakdown)}
+            className="mt-2 flex items-center justify-center gap-1 mx-auto text-xs text-white/80 hover:text-white transition-colors"
+          >
+            <span>Lihat Detail</span>
+            {showBreakdown ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          </button>
+        )}
       </div>
+
+      {/* Net Worth Breakdown */}
+      {showBreakdown && netWorthBreakdown && (
+        <div className="mb-5 p-3 bg-white/10 backdrop-blur-sm rounded-xl space-y-2">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-[#FFE3B3]" />
+              <span className="text-white/90">Aset Bersih</span>
+            </div>
+            <span className="font-medium">{formatCurrency(netWorthBreakdown.assetNetWorth)}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <Receipt className="w-4 h-4 text-[#FFE3B3]" />
+              <span className="text-white/90">Saldo Transaksi</span>
+            </div>
+            <span className={`font-medium ${netWorthBreakdown.transactionBalance >= 0 ? 'text-[#FFE3B3]' : 'text-white'}`}>
+              {formatCurrency(netWorthBreakdown.transactionBalance)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <PiggyBank className="w-4 h-4 text-[#FFE3B3]" />
+              <span className="text-white/90">Total Tabungan</span>
+            </div>
+            <span className="font-medium text-[#FFE3B3]">{formatCurrency(netWorthBreakdown.totalSavings)}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2">
+              <CreditCard className="w-4 h-4 text-white" />
+              <span className="text-white/90">Sisa Cicilan</span>
+            </div>
+            <span className="font-medium text-white">-{formatCurrency(netWorthBreakdown.remainingInstallments)}</span>
+          </div>
+          <div className="border-t border-white/20 pt-2 mt-2">
+            <div className="flex items-center justify-between text-sm font-semibold">
+              <span>Total</span>
+              <span>{formatCurrency(netWorth)}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-3 mb-5">
         <div className="text-center p-3 bg-white/15 backdrop-blur-sm rounded-xl">

@@ -5,6 +5,7 @@ import { useAssetStore } from '../store/assetStore'
 import { useSettingsStore } from '../store/settingsStore'
 import { useInstallmentStore } from '../store/installmentStore'
 import { useMonthlyNeedStore } from '../store/monthlyNeedStore'
+import { useSavingsStore } from '../store/savingsStore'
 import type { 
   CashflowData, 
   CategoryBreakdown, 
@@ -23,9 +24,10 @@ import { format, subMonths, startOfMonth, endOfMonth, parseISO } from 'date-fns'
 export function useDashboard() {
   const { transactions } = useTransactionStore()
   const { categories } = useCategoryStore()
-  const { assets, getNetWorth, getTotalAssets, getTotalLiabilities } = useAssetStore()
+  const { assets, getNetWorth: getAssetNetWorth, getTotalAssets, getTotalLiabilities } = useAssetStore()
   const { settings } = useSettingsStore()
   const { installments } = useInstallmentStore()
+  const { savings } = useSavingsStore()
   useMonthlyNeedStore() // Initialize store
 
   // Helper to get category name
@@ -158,10 +160,46 @@ export function useDashboard() {
     })
   }, [currentMonthTransactions, previousMonthTransactions, categories])
 
-  // Net worth
-  const netWorth = useMemo(() => getNetWorth(), [assets])
+  // Calculate comprehensive net worth
+  // 1. Asset net worth (from Assets page)
+  const assetNetWorth = useMemo(() => getAssetNetWorth(), [assets])
   const totalAssets = useMemo(() => getTotalAssets(), [assets])
   const totalLiabilities = useMemo(() => getTotalLiabilities(), [assets])
+
+  // 2. Transaction balance (all-time income - expense)
+  const transactionBalance = useMemo(() => {
+    const totalIncome = transactions
+      .filter(tx => tx.type === 'income')
+      .reduce((sum, tx) => sum + tx.amount, 0)
+    const totalExpense = transactions
+      .filter(tx => tx.type === 'expense')
+      .reduce((sum, tx) => sum + tx.amount, 0)
+    return totalIncome - totalExpense
+  }, [transactions])
+
+  // 3. Total savings (sum of all deposits)
+  const totalSavings = useMemo(() => {
+    return savings.reduce((total, goal) => {
+      const goalDeposits = goal.deposits.reduce((sum, d) => sum + d.amount, 0)
+      return total + goalDeposits
+    }, 0)
+  }, [savings])
+
+  // 4. Remaining installments (as liability)
+  const remainingInstallments = useMemo(() => {
+    return installments
+      .filter(inst => inst.status === 'active')
+      .reduce((total, inst) => {
+        const totalPaid = (inst.payments || []).reduce((sum, p) => sum + p.amount, 0)
+        const totalRequired = inst.totalTenor * inst.monthlyAmount
+        return total + (totalRequired - totalPaid)
+      }, 0)
+  }, [installments])
+
+  // Comprehensive net worth calculation
+  const netWorth = useMemo(() => {
+    return assetNetWorth + transactionBalance + totalSavings - remainingInstallments
+  }, [assetNetWorth, transactionBalance, totalSavings, remainingInstallments])
 
   // Net worth history for last 6 months
   const netWorthTrend = useMemo((): NetWorthHistory[] => {
@@ -286,6 +324,14 @@ export function useDashboard() {
     netWorth,
     totalAssets,
     totalLiabilities,
+    
+    // Net worth breakdown
+    netWorthBreakdown: {
+      assetNetWorth,
+      transactionBalance,
+      totalSavings,
+      remainingInstallments,
+    },
     
     // Charts data
     monthlyCashflow,

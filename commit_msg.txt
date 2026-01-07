@@ -1,11 +1,9 @@
-Apply Marple color palette consistently across all pages
+feat: Update net worth calculation to include all financial data
 
-- Update Transactions page with Marple colors
-- Update Installments page with Marple colors and tabs
-- Update MonthlyNeeds page with Marple colors
-- Update Wishlist page with Marple colors
-- Update Settings page with Marple colors for all sections
-- Update Assets page with Marple colors and tabs
-- Update Navigation sidebar and mobile nav with Marple colors
-- Replace all primary-600/primary-700 with #CA2851/#FF6766 gradient
-- Update toggle switches to use Marple primary color
+- Net worth now includes:
+  - Asset net worth (from Assets page)
+  - Transaction balance (all-time income - expense)
+  - Total savings (sum of all deposits)
+  - Remaining installments (as liability)
+- Added breakdown view in HeroSummary with toggle
+- Shows detailed breakdown: Aset Bersih, Saldo Transaksi, Total Tabungan, Sisa Cicilan

@@ -27,6 +27,7 @@ export default function Dashboard() {
     currentMonthSummary,
     previousMonthSummary,
     netWorth,
+    netWorthBreakdown,
     monthlyCashflow,
     expenseBreakdown,
     netWorthTrend,
@@ -94,6 +95,7 @@ export default function Dashboard() {
           expense={currentMonthSummary.expense}
           surplus={currentMonthSummary.surplus}
           budgetTotal={settings.monthlyLivingCost}
+          netWorthBreakdown={netWorthBreakdown}
         />
       </FadeIn>
 
