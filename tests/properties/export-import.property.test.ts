@@ -66,6 +66,7 @@ const appDataArbitrary = fc.record({
   monthlyNeeds: fc.constant([]),
   monthlyNeedPayments: fc.constant([]),
   assets: fc.array(assetArbitrary, { minLength: 0, maxLength: 5 }),
+  savings: fc.constant([]),
   exportedAt: fc.constant(new Date().toISOString()),
 })
 
@@ -178,6 +179,7 @@ describe('Property 20: Export/Import Round-Trip', () => {
             monthlyNeeds: [],
             monthlyNeedPayments: [],
             assets: [],
+            savings: [],
             exportedAt: new Date().toISOString(),
           }
 
@@ -217,6 +219,7 @@ describe('Property 20: Export/Import Round-Trip', () => {
             monthlyNeeds: [],
             monthlyNeedPayments: [],
             assets: [],
+            savings: [],
             exportedAt: new Date().toISOString(),
           }
 
@@ -260,6 +263,7 @@ describe('Property 20: Export/Import Round-Trip', () => {
             monthlyNeeds: [],
             monthlyNeedPayments: [],
             assets: [],
+            savings: [],
             exportedAt: new Date().toISOString(),
           }
 
@@ -289,6 +293,7 @@ describe('Property 20: Export/Import Round-Trip', () => {
       monthlyNeeds: [],
       monthlyNeedPayments: [],
       assets: [],
+      savings: [],
       exportedAt: new Date().toISOString(),
     }
 

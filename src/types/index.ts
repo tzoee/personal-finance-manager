@@ -341,6 +341,8 @@ export interface AppData {
   monthlyNeeds: MonthlyNeed[]
   monthlyNeedPayments: MonthlyNeedPayment[]
   assets: Asset[]
+  savings: SavingsGoal[]
+  gamification?: UserProgress
   exportedAt: string
 }
 

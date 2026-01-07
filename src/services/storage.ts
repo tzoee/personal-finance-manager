@@ -376,6 +376,15 @@ export const storageService = {
       this.getSettings(),
     ])
 
+    // Get savings from localStorage (savingsStore uses localStorage)
+    let savings = []
+    try {
+      const storedSavings = localStorage.getItem('pfm_savings')
+      savings = storedSavings ? JSON.parse(storedSavings) : []
+    } catch {
+      savings = []
+    }
+
     return {
       version: CURRENT_SCHEMA_VERSION,
       settings,
@@ -386,6 +395,7 @@ export const storageService = {
       monthlyNeeds,
       monthlyNeedPayments,
       assets,
+      savings,
       exportedAt: new Date().toISOString(),
     }
   },

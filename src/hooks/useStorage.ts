@@ -7,6 +7,7 @@ import { useInstallmentStore } from '../store/installmentStore'
 import { useMonthlyNeedStore } from '../store/monthlyNeedStore'
 import { useAssetStore } from '../store/assetStore'
 import { useSettingsStore } from '../store/settingsStore'
+import { useSavingsStore } from '../store/savingsStore'
 import { CURRENT_SCHEMA_VERSION } from '../constants/defaults'
 import { migrateData, validateImportData, needsMigration } from '../services/migration'
 
@@ -18,6 +19,7 @@ export function useStorage() {
   const { needs: monthlyNeeds, payments: monthlyNeedPayments } = useMonthlyNeedStore()
   const { assets } = useAssetStore()
   const { settings } = useSettingsStore()
+  const { savings } = useSavingsStore()
 
   /**
    * Export all data to JSON string
@@ -33,11 +35,12 @@ export function useStorage() {
       monthlyNeeds,
       monthlyNeedPayments,
       assets,
+      savings,
       exportedAt: new Date().toISOString(),
     }
 
     return JSON.stringify(data, null, 2)
-  }, [settings, transactions, categories, wishlist, installments, monthlyNeeds, monthlyNeedPayments, assets])
+  }, [settings, transactions, categories, wishlist, installments, monthlyNeeds, monthlyNeedPayments, assets, savings])
 
   /**
    * Download exported data as JSON file
@@ -183,6 +186,18 @@ export function useStorage() {
         }
       }
 
+      // Import savings
+      if (data.savings?.length) {
+        if (mode === 'replace') {
+          localStorage.setItem('pfm_savings', JSON.stringify(data.savings))
+        } else {
+          const existing = JSON.parse(localStorage.getItem('pfm_savings') || '[]')
+          const existingIds = new Set(existing.map((s: { id: string }) => s.id))
+          const newSavings = data.savings.filter(s => !existingIds.has(s.id))
+          localStorage.setItem('pfm_savings', JSON.stringify([...existing, ...newSavings]))
+        }
+      }
+
       // Reload page to refresh all stores
       window.location.reload()
 
@@ -207,6 +222,8 @@ export function useStorage() {
       'pfm_monthly_needs',
       'pfm_monthly_need_payments',
       'pfm_assets',
+      'pfm_savings',
+      'pfm_gamification',
     ]
 
     keysToRemove.forEach(key => localStorage.removeItem(key))
@@ -226,7 +243,8 @@ export function useStorage() {
       installments.length +
       monthlyNeeds.length +
       monthlyNeedPayments.length +
-      assets.length
+      assets.length +
+      savings.length
 
     // Estimate storage size
     let storageUsed = 0
@@ -251,9 +269,10 @@ export function useStorage() {
         monthlyNeeds: monthlyNeeds.length,
         monthlyNeedPayments: monthlyNeedPayments.length,
         assets: assets.length,
+        savings: savings.length,
       },
     }
-  }, [transactions, categories, wishlist, installments, monthlyNeeds, monthlyNeedPayments, assets])
+  }, [transactions, categories, wishlist, installments, monthlyNeeds, monthlyNeedPayments, assets, savings])
 
   return {
     exportData,

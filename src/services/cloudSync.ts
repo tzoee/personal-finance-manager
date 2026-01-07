@@ -28,6 +28,8 @@ function getLocalStorageData(): AppData {
     monthlyNeeds: parseJSON('pfm_monthly_needs', []),
     monthlyNeedPayments: parseJSON('pfm_monthly_need_payments', []),
     assets: parseJSON('pfm_assets', []),
+    savings: parseJSON('pfm_savings', []),
+    gamification: parseJSON('pfm_gamification', undefined),
     settings: parseJSON('pfm_settings', DEFAULT_SETTINGS),
     exportedAt: new Date().toISOString(),
   }
@@ -57,6 +59,12 @@ function setLocalStorageData(data: AppData): void {
   }
   if (data.assets?.length) {
     localStorage.setItem('pfm_assets', JSON.stringify(data.assets))
+  }
+  if (data.savings?.length) {
+    localStorage.setItem('pfm_savings', JSON.stringify(data.savings))
+  }
+  if (data.gamification) {
+    localStorage.setItem('pfm_gamification', JSON.stringify(data.gamification))
   }
   if (data.settings && Object.keys(data.settings).length > 0) {
     localStorage.setItem('pfm_settings', JSON.stringify(data.settings))
@@ -93,7 +101,8 @@ export const cloudSyncService = {
                       (appData.wishlist?.length || 0) > 0 ||
                       (appData.installments?.length || 0) > 0 ||
                       (appData.monthlyNeeds?.length || 0) > 0 ||
-                      (appData.assets?.length || 0) > 0
+                      (appData.assets?.length || 0) > 0 ||
+                      (appData.savings?.length || 0) > 0
       
       if (!hasData) {
         console.log('[CloudSync] Skip save: No data to save (localStorage is empty)')
@@ -108,6 +117,7 @@ export const cloudSyncService = {
         installments: appData.installments?.length || 0,
         monthlyNeeds: appData.monthlyNeeds?.length || 0,
         assets: appData.assets?.length || 0,
+        savings: appData.savings?.length || 0,
       })
 
       // Upsert to Supabase
@@ -181,6 +191,7 @@ export const cloudSyncService = {
         installments: cloudData.installments?.length || 0,
         monthlyNeeds: cloudData.monthlyNeeds?.length || 0,
         assets: cloudData.assets?.length || 0,
+        savings: cloudData.savings?.length || 0,
       })
 
       // Write data to localStorage (where stores read from)
