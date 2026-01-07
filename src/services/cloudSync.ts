@@ -39,29 +39,30 @@ function getLocalStorageData(): AppData {
  * Helper to write data to localStorage (to sync with stores)
  */
 function setLocalStorageData(data: AppData): void {
-  if (data.transactions?.length) {
-    localStorage.setItem('pfm_transactions', JSON.stringify(data.transactions))
+  // Always write arrays even if empty to ensure clean sync
+  if (data.transactions !== undefined) {
+    localStorage.setItem('pfm_transactions', JSON.stringify(data.transactions || []))
   }
-  if (data.categories?.length) {
-    localStorage.setItem('pfm_categories', JSON.stringify(data.categories))
+  if (data.categories !== undefined) {
+    localStorage.setItem('pfm_categories', JSON.stringify(data.categories || []))
   }
-  if (data.wishlist?.length) {
-    localStorage.setItem('pfm_wishlist', JSON.stringify(data.wishlist))
+  if (data.wishlist !== undefined) {
+    localStorage.setItem('pfm_wishlist', JSON.stringify(data.wishlist || []))
   }
-  if (data.installments?.length) {
-    localStorage.setItem('pfm_installments', JSON.stringify(data.installments))
+  if (data.installments !== undefined) {
+    localStorage.setItem('pfm_installments', JSON.stringify(data.installments || []))
   }
-  if (data.monthlyNeeds?.length) {
-    localStorage.setItem('pfm_monthly_needs', JSON.stringify(data.monthlyNeeds))
+  if (data.monthlyNeeds !== undefined) {
+    localStorage.setItem('pfm_monthly_needs', JSON.stringify(data.monthlyNeeds || []))
   }
-  if (data.monthlyNeedPayments?.length) {
-    localStorage.setItem('pfm_monthly_need_payments', JSON.stringify(data.monthlyNeedPayments))
+  if (data.monthlyNeedPayments !== undefined) {
+    localStorage.setItem('pfm_monthly_need_payments', JSON.stringify(data.monthlyNeedPayments || []))
   }
-  if (data.assets?.length) {
-    localStorage.setItem('pfm_assets', JSON.stringify(data.assets))
+  if (data.assets !== undefined) {
+    localStorage.setItem('pfm_assets', JSON.stringify(data.assets || []))
   }
-  if (data.savings?.length) {
-    localStorage.setItem('pfm_savings', JSON.stringify(data.savings))
+  if (data.savings !== undefined) {
+    localStorage.setItem('pfm_savings', JSON.stringify(data.savings || []))
   }
   if (data.gamification) {
     localStorage.setItem('pfm_gamification', JSON.stringify(data.gamification))

@@ -1,10 +1,7 @@
-fix: add savings data to cloud sync
+fix: improve cloud sync to handle all data fields properly
 
-- Add savings field to AppData type in types/index.ts
-- Add gamification field (optional) to AppData type
-- Update cloudSync.ts to include savings and gamification in sync
-- Update useStorage.ts to export/import savings data
-- Update storage.ts exportAllData to include savings
-- Update export-import tests to include savings field
+- Change setLocalStorageData to write arrays even if empty
+- This ensures clean sync when downloading from cloud
+- Previously, empty arrays were skipped which caused sync issues
 
-This fixes the bug where savings data was not synced between devices.
+Note: Users need to re-upload from device with data after this fix
